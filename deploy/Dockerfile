@@ -4,7 +4,7 @@ ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 WORKDIR /app
 
-RUN corepack enable \
+RUN --network=host corepack enable \
   && apt-get -o Acquire::Retries=3 update \
   && apt-get -o Acquire::Retries=3 install -y --no-install-recommends python3 python3-pip ffmpeg bubblewrap fonts-noto-cjk tesseract-ocr tesseract-ocr-chi-sim \
   && rm -rf /var/lib/apt/lists/*
