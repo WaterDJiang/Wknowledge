@@ -56,12 +56,12 @@ jobs:
         run: |
           test -n "$ALIYUN_HOST"
           test -n "$ALIYUN_SSH_USER"
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "$ALIYUN_SSH_USER@$ALIYUN_HOST" \
+          ssh -o BatchMode=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=120 -o StrictHostKeyChecking=yes "$ALIYUN_SSH_USER@$ALIYUN_HOST" \
             "bash -s -- '${{ github.repository }}' '${{ github.sha }}'" < deploy/alicloud/deploy.sh
       - name: Verify production readiness
         env:
           ALIYUN_HOST: ${{ secrets.ALIYUN_HOST }}
           ALIYUN_SSH_USER: ${{ secrets.ALIYUN_SSH_USER }}
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "$ALIYUN_SSH_USER@$ALIYUN_HOST" \
+          ssh -o BatchMode=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=120 -o StrictHostKeyChecking=yes "$ALIYUN_SSH_USER@$ALIYUN_HOST" \
             "curl --fail --silent --show-error --max-time 15 http://127.0.0.1:13000/api/health/ready >/dev/null"

@@ -5,6 +5,7 @@ ENV PATH=$PNPM_HOME:$PATH
 WORKDIR /app
 
 RUN --network=host corepack enable \
+  && sed -i 's|http://deb.debian.org/debian|https://mirrors.aliyun.com/debian|g; s|http://deb.debian.org/debian-security|https://mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list.d/debian.sources \
   && apt-get -o Acquire::Retries=3 update \
   && apt-get -o Acquire::Retries=3 install -y --no-install-recommends python3 python3-pip ffmpeg bubblewrap fonts-noto-cjk tesseract-ocr tesseract-ocr-chi-sim \
   && rm -rf /var/lib/apt/lists/*

@@ -9,6 +9,7 @@ describe("Docker runtime dependency installation", () => {
     const dockerfile = await readFile(path.join(root, "deploy", "Dockerfile"), "utf8");
 
     expect(dockerfile).toContain("RUN --network=host corepack enable");
+    expect(dockerfile).toContain("https://mirrors.aliyun.com/debian");
     expect(dockerfile).toContain("apt-get -o Acquire::Retries=3 update");
     expect(dockerfile).toContain(
       "apt-get -o Acquire::Retries=3 install -y --no-install-recommends"
@@ -24,5 +25,15 @@ describe("Docker runtime dependency installation", () => {
     expect(deployScript).toContain("docker buildx build --allow network.host --load");
     expect(deployScript).not.toContain('"${compose[@]}" build');
     expect(compose).toContain('image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?');
+  });
+
+  it("keeps the deployment SSH connection alive during slow first builds", async () => {
+    const workflow = await readFile(
+      path.join(root, ".github", "workflows", "deploy-alicloud.yml"),
+      "utf8"
+    );
+
+    expect(workflow).toContain("ServerAliveInterval=30");
+    expect(workflow).toContain("ServerAliveCountMax=120");
   });
 });
