@@ -27,6 +27,7 @@
 - 宝塔 Nginx 继续占用公网 80/443；Wknowledge 网关不得公开监听 3000 或 13000。
 - 仅镜像构建阶段安装 APT、Node 与 Python 依赖及编译时使用 BuildKit 明确授予的 `network.host`，以适配目标服务器 Docker 默认网络无法解析外部源的已验证故障；Compose 只运行该固定提交构建的本地镜像，运行时网络与对外回环暴露规则不变。
 - 构建阶段使用阿里云 Debian HTTP 镜像并保持 Debian 包签名校验；基础镜像安装 `ca-certificates` 前不使用 HTTPS 镜像。Actions SSH 设置保活，适配目标网络下载大型语言与多媒体依赖时连续数分钟无标准输出的传输特性。
+- Node 22.12 内置 Corepack 的签名密钥过旧时，构建层仅安装固定 `corepack@0.31.0` 后再启用锁定的 `pnpm@10.29.3`；不禁用包管理器签名验证或锁文件验证。
 
 ## 5. 验收标准
 

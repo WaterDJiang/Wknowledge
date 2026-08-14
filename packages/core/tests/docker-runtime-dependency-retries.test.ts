@@ -8,7 +8,8 @@ describe("Docker runtime dependency installation", () => {
   it("uses host DNS only while installing verified APT dependencies", async () => {
     const dockerfile = await readFile(path.join(root, "deploy", "Dockerfile"), "utf8");
 
-    expect(dockerfile).toContain("RUN --network=host corepack enable");
+    expect(dockerfile).toContain("RUN --network=host npm install --global corepack@0.31.0");
+    expect(dockerfile).toContain("&& corepack enable");
     expect(dockerfile).toContain("RUN --network=host pnpm install --frozen-lockfile");
     expect(dockerfile).toContain("http://mirrors.aliyun.com/debian");
     expect(dockerfile).toContain("apt-get -o Acquire::Retries=3 update");
