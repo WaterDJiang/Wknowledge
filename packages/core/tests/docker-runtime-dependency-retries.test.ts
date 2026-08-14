@@ -9,6 +9,7 @@ describe("Docker runtime dependency installation", () => {
     const dockerfile = await readFile(path.join(root, "deploy", "Dockerfile"), "utf8");
 
     expect(dockerfile).toContain("RUN --network=host corepack enable");
+    expect(dockerfile).toContain("RUN --network=host pnpm install --frozen-lockfile");
     expect(dockerfile).toContain("http://mirrors.aliyun.com/debian");
     expect(dockerfile).toContain("apt-get -o Acquire::Retries=3 update");
     expect(dockerfile).toContain(

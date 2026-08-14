@@ -18,7 +18,7 @@ COPY skills ./skills
 COPY deploy ./deploy
 COPY tsconfig.base.json eslint.config.mjs prettier.config.mjs vitest.config.ts ./
 
-RUN pnpm install --frozen-lockfile \
+RUN --network=host pnpm install --frozen-lockfile \
   && pip3 install --break-system-packages --no-cache-dir -r runtimes/python/requirements.txt \
   && pnpm build
 
