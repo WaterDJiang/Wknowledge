@@ -1,0 +1,17 @@
+{
+  "id": "wiki-correct",
+  "version": "1.0.0",
+  "digest": "sha256:355f0c2d3fbbd5b9e86bcd4b6f9e8fa5520ae23081a84a4913571227aa410a9a",
+  "description": "生成待人工确认的 Wiki 更正提案，不静默覆盖已审核内容",
+  "inputSchema": { "type": "object", "required": ["pageId", "proposal", "sourceRefs"] },
+  "outputSchema": { "type": "object", "required": ["status", "proposal"] },
+  "requiredCapabilities": ["chat"],
+  "permissions": {
+    "resources": "selected",
+    "filesystem": "write-artifacts",
+    "network": "deny",
+    "approval": "always"
+  },
+  "limits": { "timeoutSeconds": 120, "memoryMb": 256, "maxModelCalls": 1 },
+  "entrypoint": "index.ts"
+}

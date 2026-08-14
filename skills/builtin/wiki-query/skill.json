@@ -1,0 +1,17 @@
+{
+  "id": "wiki-query",
+  "version": "1.0.0",
+  "digest": "sha256:ef3330b9152afa8df4f4d925053b487c68ce5063539760b4e5b7bb2a856e0d98",
+  "description": "从根索引开始检索 Wiki 并返回精确来源引用",
+  "inputSchema": { "type": "object", "required": ["spaceRoot", "question"] },
+  "outputSchema": { "type": "object", "required": ["answer", "citations", "refused"] },
+  "requiredCapabilities": [],
+  "permissions": {
+    "resources": "space",
+    "filesystem": "read",
+    "network": "deny",
+    "approval": "never"
+  },
+  "limits": { "timeoutSeconds": 30, "memoryMb": 256, "maxModelCalls": 0 },
+  "entrypoint": "index.ts"
+}

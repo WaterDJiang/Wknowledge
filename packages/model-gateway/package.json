@@ -1,0 +1,19 @@
+{
+  "name": "@wknowledge/model-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@wknowledge/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

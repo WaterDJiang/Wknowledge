@@ -1,0 +1,17 @@
+{
+  "id": "practice-generate",
+  "version": "1.0.0",
+  "digest": "sha256:8cac2302dc3ac2da32ab2c3e50de4ac7b2e1a5bf4c22b55cb9c8d32ca6cdd468",
+  "description": "根据已完成课程单元生成带来源、可确认的针对性练习候选",
+  "inputSchema": { "type": "object", "required": ["courseUnitIds", "difficulty"] },
+  "outputSchema": { "type": "object", "required": ["courseId", "difficulty", "questions"] },
+  "requiredCapabilities": ["chat"],
+  "permissions": {
+    "resources": "selected",
+    "filesystem": "none",
+    "network": "deny",
+    "approval": "never"
+  },
+  "limits": { "timeoutSeconds": 120, "memoryMb": 256, "maxModelCalls": 1 },
+  "entrypoint": "worker:learning-generation"
+}

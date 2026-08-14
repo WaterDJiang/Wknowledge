@@ -1,0 +1,17 @@
+{
+  "id": "wiki-lint",
+  "version": "1.0.0",
+  "digest": "sha256:4eaebc97c9ddf2878bb517fa07756051d1f6a9b3558964ebcb938a149608c3ba",
+  "description": "校验 Wiki Frontmatter、唯一 ID、来源引用和根索引",
+  "inputSchema": { "type": "object", "required": ["wikiRoot"] },
+  "outputSchema": { "type": "array" },
+  "requiredCapabilities": [],
+  "permissions": {
+    "resources": "space",
+    "filesystem": "read",
+    "network": "deny",
+    "approval": "never"
+  },
+  "limits": { "timeoutSeconds": 30, "memoryMb": 256, "maxModelCalls": 0 },
+  "entrypoint": "index.ts"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@wknowledge/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node --env-file-if-exists=../../.env dev.mjs",
+    "build": "next build --webpack",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@wknowledge/agent-runtime": "workspace:*",
+    "@wknowledge/auth": "workspace:*",
+    "@wknowledge/blob-store": "workspace:*",
+    "@wknowledge/contracts": "workspace:*",
+    "@wknowledge/core": "workspace:*",
+    "@wknowledge/database": "workspace:*",
+    "@wknowledge/model-gateway": "workspace:*",
+    "@wknowledge/skill-runtime": "workspace:*",
+    "@wknowledge/wiki": "workspace:*",
+    "drizzle-orm": "^0.45.1",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

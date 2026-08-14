@@ -1,0 +1,328 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1786514985374,
+      "tag": "0000_odd_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786533515940,
+      "tag": "0001_brief_freak",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786549654416,
+      "tag": "0002_even_purple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786553444200,
+      "tag": "0003_old_karma",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786609320000,
+      "tag": "0004_lucky_rain",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786617600000,
+      "tag": "0005_keen_cancel",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786621200000,
+      "tag": "0006_bright_invite",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786698000000,
+      "tag": "0007_clear_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786701600000,
+      "tag": "0008_calm_lease",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1786723380000,
+      "tag": "0009_fresh_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1786809600000,
+      "tag": "0010_swift_upload",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1786813200000,
+      "tag": "0011_kind_upload_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1786899600000,
+      "tag": "0012_sunny_quota",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1786986000000,
+      "tag": "0013_keen_finalization_failure",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1787072400000,
+      "tag": "0014_asr_provider_capabilities",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1787158800000,
+      "tag": "0015_agent_session_context",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1787162400000,
+      "tag": "0016_agent_evidence_source_refs",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1787166000000,
+      "tag": "0017_agent_run_lifecycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1787173200000,
+      "tag": "0018_skill_approval",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1787176800000,
+      "tag": "0019_skill_run",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1787180400000,
+      "tag": "0020_skill_run_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1787184000000,
+      "tag": "0021_course_orchestration",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1787187600000,
+      "tag": "0022_course_resource_cascade",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1787191200000,
+      "tag": "0023_backfill_active_courses",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1787194800000,
+      "tag": "0024_practice_candidates",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1787198400000,
+      "tag": "0025_practice_attempts",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1787202000000,
+      "tag": "0026_practice_attempt_question_cascade",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1787205600000,
+      "tag": "0027_skill_run_output_summary",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1787209200000,
+      "tag": "0028_agent_context_subscopes",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1787212800000,
+      "tag": "0029_objective_practice_grade_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1787216400000,
+      "tag": "0030_agent_context_course_scope",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1787220000000,
+      "tag": "0031_agent_knowledge_tool_call",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1787223600000,
+      "tag": "0032_agent_knowledge_read_tool_call",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1787227200000,
+      "tag": "0033_agent_run_event_replay",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1787230800000,
+      "tag": "0034_learning_report_artifacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1787234400000,
+      "tag": "0035_formal_assessments",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1787238000000,
+      "tag": "0036_assessment_question_snapshot_reference",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1787241600000,
+      "tag": "0037_manual_free_response_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1787252400000,
+      "tag": "0038_deterministic_mastery_snapshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1787256000000,
+      "tag": "0039_plan_compose_candidates",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1787342400000,
+      "tag": "0040_practice_generate_candidates",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1787346000000,
+      "tag": "0041_practice_set_skill_run_set_null",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1787353200000,
+      "tag": "0042_learning_generation_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1787356800000,
+      "tag": "0043_worker_heartbeat",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1787360400000,
+      "tag": "0044_organization_membership_disabled",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1787364000000,
+      "tag": "0045_derived_storage_assets",
+      "breakpoints": true
+    }
+  ]
+}

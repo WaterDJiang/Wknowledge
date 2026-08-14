@@ -1,0 +1,1 @@
+ALTER TABLE "resource_version" ADD COLUMN "compile_profile" text DEFAULT 'reference' NOT NULL;

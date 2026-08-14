@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "id": "wiki-golden-v0.1",
+  "stage": "pilot",
+  "description": "用于验证 Wiki 黄金集 Runner 的受控试点集，不代表 100 份真实资料正式验收。",
+  "thresholds": {
+    "recallAt10": 1,
+    "citationAccuracy": 1,
+    "refusalAccuracy": 1
+  },
+  "documents": [
+    {
+      "id": "retrieval-practice",
+      "spaceId": "11111111-1111-4111-8111-111111111111",
+      "resourceVersionId": "20000000-0000-4000-8000-000000000001",
+      "resourceName": "学习科学.md",
+      "profile": "knowledge",
+      "nodes": [
+        {
+          "schemaVersion": 1,
+          "id": "retrieval-practice",
+          "kind": "heading",
+          "title": "检索练习",
+          "content": "检索练习",
+          "order": 0,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000001",
+            "nodeId": "retrieval-practice"
+          },
+          "metadata": { "level": 1, "tags": ["学习科学"] }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "retrieval-detail",
+          "kind": "paragraph",
+          "content": "间隔检索与主动回忆有助于巩固长期记忆。",
+          "parentId": "retrieval-practice",
+          "order": 1,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000001",
+            "nodeId": "retrieval-detail"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": "spaced-learning",
+      "spaceId": "11111111-1111-4111-8111-111111111111",
+      "resourceVersionId": "20000000-0000-4000-8000-000000000002",
+      "resourceName": "复习节奏.md",
+      "profile": "knowledge",
+      "nodes": [
+        {
+          "schemaVersion": 1,
+          "id": "spaced-learning",
+          "kind": "heading",
+          "title": "分散学习",
+          "content": "分散学习",
+          "order": 0,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000002",
+            "nodeId": "spaced-learning"
+          },
+          "metadata": { "level": 1, "tags": ["复习节奏"] }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "spaced-detail",
+          "kind": "paragraph",
+          "content": "把复习分散到多个日期，比一次集中学习更有利于长期保持。",
+          "parentId": "spaced-learning",
+          "order": 1,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000002",
+            "nodeId": "spaced-detail"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": "project-retrospective",
+      "spaceId": "11111111-1111-4111-8111-111111111111",
+      "resourceVersionId": "20000000-0000-4000-8000-000000000003",
+      "resourceName": "交付延期复盘.md",
+      "profile": "case",
+      "nodes": [
+        {
+          "schemaVersion": 1,
+          "id": "retrospective",
+          "kind": "paragraph",
+          "title": "交付延期复盘",
+          "content": "团队通过缩小批次、提前风险评审和每日同步，降低了后续交付延期。",
+          "order": 0,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000003",
+            "nodeId": "retrospective"
+          },
+          "metadata": { "tags": ["项目复盘"] }
+        }
+      ]
+    },
+    {
+      "id": "source-traceability",
+      "spaceId": "11111111-1111-4111-8111-111111111111",
+      "resourceVersionId": "20000000-0000-4000-8000-000000000004",
+      "resourceName": "来源追溯.md",
+      "profile": "knowledge",
+      "nodes": [
+        {
+          "schemaVersion": 1,
+          "id": "source-traceability",
+          "kind": "heading",
+          "title": "来源追溯",
+          "content": "来源追溯",
+          "order": 0,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000004",
+            "nodeId": "source-traceability"
+          },
+          "metadata": { "level": 1, "tags": ["SourceLocator"] }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "locator-detail",
+          "kind": "paragraph",
+          "content": "每条知识引用都应绑定 SourceLocator，以便打开历史资源版本中的精确位置。",
+          "parentId": "source-traceability",
+          "order": 1,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000004",
+            "nodeId": "locator-detail"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "id": "markdown-index",
+      "spaceId": "11111111-1111-4111-8111-111111111111",
+      "resourceVersionId": "20000000-0000-4000-8000-000000000005",
+      "resourceName": "Markdown Wiki Guide.md",
+      "profile": "reference",
+      "nodes": [
+        {
+          "schemaVersion": 1,
+          "id": "markdown-index",
+          "kind": "paragraph",
+          "title": "Index-first retrieval",
+          "content": "Index-first retrieval reads the root index before opening candidate Markdown pages.",
+          "order": 0,
+          "locator": {
+            "type": "document",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000005",
+            "nodeId": "markdown-index"
+          },
+          "metadata": { "tags": ["Markdown"] }
+        }
+      ]
+    },
+    {
+      "id": "sheet-reference",
+      "spaceId": "11111111-1111-4111-8111-111111111111",
+      "resourceVersionId": "20000000-0000-4000-8000-000000000006",
+      "resourceName": "预算表说明.md",
+      "profile": "reference",
+      "nodes": [
+        {
+          "schemaVersion": 1,
+          "id": "budget-range",
+          "kind": "table",
+          "title": "预算区间",
+          "content": "年度预算合计位于工作表预算汇总的 B2 到 B12 区间。",
+          "order": 0,
+          "locator": {
+            "type": "sheet",
+            "resourceVersionId": "20000000-0000-4000-8000-000000000006",
+            "sheet": "预算汇总",
+            "range": "B2:B12"
+          },
+          "metadata": { "tags": ["表格定位"] }
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q-retrieval-memory",
+      "question": "怎样通过检索练习巩固长期记忆？",
+      "language": "zh-CN",
+      "questionType": "fact",
+      "expectRefusal": false,
+      "expectedPageIds": ["topic-20000000-0000-4000-8000-000000000001-retrieval-practice"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000001"]
+    },
+    {
+      "id": "q-active-recall",
+      "question": "主动回忆对长期记忆有什么帮助？",
+      "language": "zh-CN",
+      "questionType": "fact",
+      "expectRefusal": false,
+      "expectedPageIds": ["topic-20000000-0000-4000-8000-000000000001-retrieval-practice"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000001"]
+    },
+    {
+      "id": "q-spaced-days",
+      "question": "为什么要把复习分散到多个日期？",
+      "language": "zh-CN",
+      "questionType": "fact",
+      "expectRefusal": false,
+      "expectedPageIds": ["topic-20000000-0000-4000-8000-000000000002-spaced-learning"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000002"]
+    },
+    {
+      "id": "q-retrospective-action",
+      "question": "交付延期复盘采取了哪些改进措施？",
+      "language": "zh-CN",
+      "questionType": "case",
+      "expectRefusal": false,
+      "expectedPageIds": ["case-20000000-0000-4000-8000-000000000003"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000003"]
+    },
+    {
+      "id": "q-source-locator",
+      "question": "SourceLocator 如何支持来源追溯？",
+      "language": "zh-CN",
+      "questionType": "routing",
+      "expectRefusal": false,
+      "expectedPageIds": ["topic-20000000-0000-4000-8000-000000000004-source-traceability"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000004"]
+    },
+    {
+      "id": "q-history-version",
+      "question": "知识引用怎样打开历史资源版本的精确位置？",
+      "language": "zh-CN",
+      "questionType": "routing",
+      "expectRefusal": false,
+      "expectedPageIds": ["topic-20000000-0000-4000-8000-000000000004-source-traceability"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000004"]
+    },
+    {
+      "id": "q-index-first",
+      "question": "How does index-first retrieval open Markdown pages?",
+      "language": "en",
+      "questionType": "routing",
+      "expectRefusal": false,
+      "expectedPageIds": ["material-20000000-0000-4000-8000-000000000005"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000005"]
+    },
+    {
+      "id": "q-budget-range",
+      "question": "年度预算合计在哪个工作表区间？",
+      "language": "zh-CN",
+      "questionType": "fact",
+      "expectRefusal": false,
+      "expectedPageIds": ["material-20000000-0000-4000-8000-000000000006"],
+      "expectedResourceVersionIds": ["20000000-0000-4000-8000-000000000006"]
+    },
+    {
+      "id": "q-refuse-quantum",
+      "question": "薛定谔方程如何描述量子态演化？",
+      "language": "zh-CN",
+      "questionType": "unanswerable",
+      "expectRefusal": true,
+      "expectedPageIds": [],
+      "expectedResourceVersionIds": []
+    },
+    {
+      "id": "q-refuse-medical",
+      "question": "胰岛素剂量应该怎样调整？",
+      "language": "zh-CN",
+      "questionType": "unanswerable",
+      "expectRefusal": true,
+      "expectedPageIds": [],
+      "expectedResourceVersionIds": []
+    },
+    {
+      "id": "q-refuse-law",
+      "question": "劳动合同解除的法定赔偿是多少？",
+      "language": "zh-CN",
+      "questionType": "unanswerable",
+      "expectRefusal": true,
+      "expectedPageIds": [],
+      "expectedResourceVersionIds": []
+    },
+    {
+      "id": "q-refuse-weather",
+      "question": "What is tomorrow's weather in London?",
+      "language": "en",
+      "questionType": "unanswerable",
+      "expectRefusal": true,
+      "expectedPageIds": [],
+      "expectedResourceVersionIds": []
+    }
+  ]
+}

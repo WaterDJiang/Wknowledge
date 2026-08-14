@@ -1,0 +1,66 @@
+name: Deploy to Alibaba Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wknowledge-production
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate deployment script
+        run: bash -n deploy/alicloud/deploy.sh
+      - name: Validate Compose configuration
+        env:
+          POSTGRES_PASSWORD: ci-compose-password
+          WKNOWLEDGE_CREDENTIAL_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          WKNOWLEDGE_HTTP_HOST_PORT: 127.0.0.1:13000
+        run: docker compose config --quiet
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-24.04
+    environment:
+      name: production
+      url: https://knowledge.wattter.cn
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure pinned SSH access
+        env:
+          ALIYUN_HOST: ${{ secrets.ALIYUN_HOST }}
+          ALIYUN_SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_SSH_PRIVATE_KEY }}
+          ALIYUN_SSH_KNOWN_HOSTS: ${{ secrets.ALIYUN_SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$ALIYUN_HOST"
+          test -n "$ALIYUN_SSH_PRIVATE_KEY"
+          test -n "$ALIYUN_SSH_KNOWN_HOSTS"
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$ALIYUN_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$ALIYUN_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+      - name: Deploy immutable revision
+        env:
+          ALIYUN_HOST: ${{ secrets.ALIYUN_HOST }}
+          ALIYUN_SSH_USER: ${{ secrets.ALIYUN_SSH_USER }}
+        run: |
+          test -n "$ALIYUN_HOST"
+          test -n "$ALIYUN_SSH_USER"
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "$ALIYUN_SSH_USER@$ALIYUN_HOST" \
+            "bash -s -- '${{ github.repository }}' '${{ github.sha }}'" < deploy/alicloud/deploy.sh
+      - name: Verify production readiness
+        env:
+          ALIYUN_HOST: ${{ secrets.ALIYUN_HOST }}
+          ALIYUN_SSH_USER: ${{ secrets.ALIYUN_SSH_USER }}
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "$ALIYUN_SSH_USER@$ALIYUN_HOST" \
+            "curl --fail --silent --show-error --max-time 15 http://127.0.0.1:13000/api/health/ready >/dev/null"

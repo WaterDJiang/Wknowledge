@@ -1,0 +1,17 @@
+{
+  "id": "plan-compose",
+  "version": "1.0.0",
+  "digest": "sha256:4d753db4e80a55ffbd890b8e0ca05d422b329653eb6bc3a1d1ed3fd674a8f40a",
+  "description": "根据学习目标和明确选定的资料版本生成可确认、可回源的计划候选",
+  "inputSchema": { "type": "object", "required": ["goal", "resourceVersionIds"] },
+  "outputSchema": { "type": "object", "required": ["title", "units"] },
+  "requiredCapabilities": ["chat"],
+  "permissions": {
+    "resources": "selected",
+    "filesystem": "none",
+    "network": "deny",
+    "approval": "never"
+  },
+  "limits": { "timeoutSeconds": 120, "memoryMb": 256, "maxModelCalls": 1 },
+  "entrypoint": "worker:learning-generation"
+}

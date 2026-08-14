@@ -1,0 +1,25 @@
+{
+  "name": "@wknowledge/wiki",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "wiki:lint": "tsx src/cli.ts",
+    "wiki:schema:check": "tsx src/schema-cli.ts check",
+    "wiki:schema:migrate": "tsx src/schema-cli.ts migrate"
+  },
+  "dependencies": {
+    "@wknowledge/contracts": "workspace:*",
+    "gray-matter": "^4.0.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "vitest": "^4.0.18"
+  }
+}

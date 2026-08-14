@@ -1,0 +1,164 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: wknowledge
+      POSTGRES_USER: wknowledge
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}"
+    volumes:
+      - wknowledge-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wknowledge -d wknowledge"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment: &runtime-environment
+      DATABASE_URL: "postgresql://wknowledge:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/wknowledge"
+      WKNOWLEDGE_DATA_ROOT: /app/data/spaces
+      WKNOWLEDGE_BLOB_ROOT: /app/data/blobs
+      WKNOWLEDGE_WORKSPACE_ROOT: /app
+      WKNOWLEDGE_PYTHON: python3
+      WKNOWLEDGE_CREDENTIAL_KEY: ${WKNOWLEDGE_CREDENTIAL_KEY:-}
+    command: ["pnpm", "db:migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  gateway:
+    image: nginx:1.27-alpine
+    user: "101:101"
+    ports:
+      - "${WKNOWLEDGE_HTTP_HOST_PORT:-3000}:3000"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=16m
+    volumes:
+      - ./deploy/nginx/wknowledge.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment: *runtime-environment
+    command: ["pnpm", "--filter", "@wknowledge/web", "start"]
+    expose:
+      - "3000"
+    volumes:
+      - wknowledge-data:/app/data
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000/api/health/ready'').then(r=>{if(!r.ok)process.exit(1)})"'
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  worker:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment: *runtime-environment
+    command: ["pnpm", "worker"]
+    mem_limit: ${WKNOWLEDGE_WORKER_MEMORY_LIMIT:-2g}
+    cpus: "${WKNOWLEDGE_WORKER_CPU_LIMIT:-2.0}"
+    pids_limit: ${WKNOWLEDGE_WORKER_PIDS_LIMIT:-256}
+    tmpfs:
+      - /tmp:size=${WKNOWLEDGE_WORKER_TMPFS_SIZE:-1g},mode=1777
+    volumes:
+      - wknowledge-data:/app/data
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  backup:
+    profiles: ["operations"]
+    build:
+      context: .
+      dockerfile: deploy/backup.Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://wknowledge:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/wknowledge"
+      WKNOWLEDGE_DATA_ROOT: /app/data/spaces
+      WKNOWLEDGE_BLOB_ROOT: /app/data/blobs
+      WKNOWLEDGE_BACKUP_ROOT: /backups
+      WKNOWLEDGE_RELEASE_VERSION: ${WKNOWLEDGE_RELEASE_VERSION:-unknown}
+    volumes:
+      - wknowledge-data:/app/data:ro
+      - wknowledge-backups:/backups
+      - wknowledge-restore:/restore
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  preflight:
+    profiles: ["operations"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://wknowledge:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/wknowledge"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}"
+      WKNOWLEDGE_DATA_ROOT: /app/data/spaces
+      WKNOWLEDGE_BLOB_ROOT: /app/data/blobs
+      WKNOWLEDGE_CREDENTIAL_KEY: ${WKNOWLEDGE_CREDENTIAL_KEY:-}
+      WKNOWLEDGE_RELEASE_VERSION: ${WKNOWLEDGE_RELEASE_VERSION:-unknown}
+      WKNOWLEDGE_MIN_FREE_BYTES: ${WKNOWLEDGE_MIN_FREE_BYTES:-1073741824}
+    command: ["node", "deploy/preflight.mjs"]
+    volumes:
+      - wknowledge-data:/app/data:ro
+
+  upgrade-check:
+    profiles: ["operations"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment: *runtime-environment
+    command: ["pnpm", "db:upgrade:check"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  wiki-schema-check:
+    profiles: ["operations"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment:
+      WKNOWLEDGE_DATA_ROOT: /app/data/spaces
+    command: ["pnpm", "wiki:schema:check"]
+    volumes:
+      - wknowledge-data:/app/data:ro
+
+  wiki-schema-migrate:
+    profiles: ["operations"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    environment:
+      WKNOWLEDGE_DATA_ROOT: /app/data/spaces
+      WKNOWLEDGE_WIKI_MIGRATION_QUIESCED: ${WKNOWLEDGE_WIKI_MIGRATION_QUIESCED:-false}
+    command: ["pnpm", "wiki:schema:migrate"]
+    volumes:
+      - wknowledge-data:/app/data
+
+volumes:
+  wknowledge-postgres:
+  wknowledge-data:
+  wknowledge-backups:
+  wknowledge-restore:

@@ -1,0 +1,29 @@
+{
+  "name": "@wknowledge/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/migrate.ts",
+    "db:seed": "tsx src/seed.ts",
+    "db:upgrade:check": "tsx src/upgrade-check.ts"
+  },
+  "dependencies": {
+    "@wknowledge/contracts": "workspace:*",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.17.2"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.16.0",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

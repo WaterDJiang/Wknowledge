@@ -1,0 +1,47 @@
+{
+  "name": "wknowledge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.29.3",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @wknowledge/web --filter @wknowledge/worker dev",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:generate": "pnpm --filter @wknowledge/database db:generate",
+    "db:migrate": "pnpm --filter @wknowledge/database db:migrate",
+    "db:seed": "pnpm --filter @wknowledge/database db:seed",
+    "db:upgrade:check": "pnpm --filter @wknowledge/database db:upgrade:check",
+    "worker": "pnpm --filter @wknowledge/worker start",
+    "wiki:lint": "pnpm --filter @wknowledge/wiki wiki:lint",
+    "wiki:schema:check": "pnpm --filter @wknowledge/wiki wiki:schema:check",
+    "wiki:schema:migrate": "pnpm --filter @wknowledge/wiki wiki:schema:migrate",
+    "eval:wiki": "tsx packages/wiki/src/eval-cli.ts",
+    "eval:locators": "tsx apps/worker/src/locator-eval-cli.ts",
+    "backup:create": "node deploy/backup.mjs create",
+    "backup:verify": "node deploy/backup.mjs verify",
+    "backup:restore": "node deploy/backup.mjs restore",
+    "deploy:preflight": "node deploy/preflight.mjs",
+    "test:load": "node deploy/load-test.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^22.19.11",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
+    "prettier": "^3.8.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
+  }
+}

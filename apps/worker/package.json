@@ -1,0 +1,27 @@
+{
+  "name": "@wknowledge/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=../../.env run.mjs dev",
+    "start": "node --env-file-if-exists=../../.env run.mjs start",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@wknowledge/blob-store": "workspace:*",
+    "@wknowledge/contracts": "workspace:*",
+    "@wknowledge/core": "workspace:*",
+    "@wknowledge/database": "workspace:*",
+    "@wknowledge/model-gateway": "workspace:*",
+    "@wknowledge/skill-runtime": "workspace:*",
+    "@wknowledge/wiki": "workspace:*",
+    "drizzle-orm": "^0.45.1",
+    "pg-boss": "^12.14.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

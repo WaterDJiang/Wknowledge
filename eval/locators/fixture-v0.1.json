@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "id": "locator-fixture-v0.1",
+  "minimumAccuracy": 1,
+  "cases": [
+    {
+      "id": "pdf-native-text-block",
+      "type": "pdf",
+      "expected": {
+        "type": "pdf",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "page": 1,
+        "bbox": [72, 108, 147, 126]
+      },
+      "actual": {
+        "type": "pdf",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "page": 1,
+        "bbox": [72, 108.98, 146.04, 125.48]
+      },
+      "bboxIouThreshold": 0.8
+    },
+    {
+      "id": "pptx-text-shape",
+      "type": "slide",
+      "expected": {
+        "type": "slide",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "slide": 1,
+        "shapeId": "2"
+      },
+      "actual": {
+        "type": "slide",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "slide": 1,
+        "shapeId": "2"
+      }
+    },
+    {
+      "id": "xlsx-sheet-range",
+      "type": "sheet",
+      "expected": {
+        "type": "sheet",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "sheet": "进度",
+        "range": "A1:C2"
+      },
+      "actual": {
+        "type": "sheet",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "sheet": "进度",
+        "range": "A1:C2"
+      }
+    },
+    {
+      "id": "image-ocr-region",
+      "type": "image",
+      "expected": {
+        "type": "image",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "bbox": [40, 60, 390, 120]
+      },
+      "actual": {
+        "type": "image",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "bbox": [44, 65, 380, 116]
+      },
+      "bboxIouThreshold": 0.8
+    },
+    {
+      "id": "audio-asr-segment",
+      "type": "audio",
+      "expected": {
+        "type": "audio",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "startMs": 600,
+        "endMs": 1250
+      },
+      "actual": {
+        "type": "audio",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "startMs": 600,
+        "endMs": 1250
+      }
+    },
+    {
+      "id": "video-asr-segment",
+      "type": "video",
+      "expected": {
+        "type": "video",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "startMs": 0,
+        "endMs": 1000
+      },
+      "actual": {
+        "type": "video",
+        "resourceVersionId": "11111111-1111-4111-8111-111111111111",
+        "startMs": 0,
+        "endMs": 1000
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "wiki-compile",
+  "version": "1.0.0",
+  "digest": "sha256:eadb9840f9d533b6ea75aa53c6e60985f0f29eb2b0f21aacb0c4c462fc631143",
+  "description": "将标准化节点编译为可追溯的 Markdown Wiki 页面",
+  "inputSchema": { "type": "object", "required": ["spaceRoot", "input"] },
+  "outputSchema": { "type": "object", "required": ["pageId", "pagePath"] },
+  "requiredCapabilities": [],
+  "permissions": {
+    "resources": "selected",
+    "filesystem": "write-artifacts",
+    "network": "deny",
+    "approval": "never"
+  },
+  "limits": { "timeoutSeconds": 300, "memoryMb": 512, "maxModelCalls": 0 },
+  "entrypoint": "index.ts"
+}

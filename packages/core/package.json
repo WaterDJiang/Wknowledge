@@ -1,0 +1,26 @@
+{
+  "name": "@wknowledge/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@wknowledge/blob-store": "workspace:*",
+    "@wknowledge/auth": "workspace:*",
+    "@wknowledge/contracts": "workspace:*",
+    "@wknowledge/database": "workspace:*",
+    "@wknowledge/skill-runtime": "workspace:*",
+    "@wknowledge/wiki": "workspace:*",
+    "drizzle-orm": "^0.45.1",
+    "pg-boss": "^12.14.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}
