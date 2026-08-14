@@ -67,8 +67,8 @@ git -C "$app_dir" clean -ffd
 
 "${compose[@]}" config --quiet
 docker buildx build --allow network.host --load --tag "wknowledge-app:$revision" --file "$app_dir/deploy/Dockerfile" "$app_dir"
-"${compose[@]}" run --rm --no-deps --entrypoint sh web -c 'mkdir -p /app/data/spaces /app/data/blobs'
-"${compose[@]}" --profile operations run --rm preflight
+"${compose[@]}" run --rm --no-deps --entrypoint sh web -c 'mkdir -p /app/data/spaces /app/data/blobs' </dev/null
+"${compose[@]}" --profile operations run --rm preflight </dev/null
 "${compose[@]}" up --detach --wait --remove-orphans
 curl --fail --silent --show-error --max-time 15 http://127.0.0.1:13000/api/health/ready >/dev/null
 

@@ -38,4 +38,17 @@ describe("Docker runtime dependency installation", () => {
     expect(workflow).toContain("ServerAliveInterval=30");
     expect(workflow).toContain("ServerAliveCountMax=120");
   });
+
+  it("prevents one-shot Compose containers from consuming the SSH deployment script", async () => {
+    const deployScript = await readFile(path.join(root, "deploy", "alicloud", "deploy.sh"), "utf8");
+
+    expect(deployScript).toContain(
+      "run --rm --no-deps --entrypoint sh web -c 'mkdir -p /app/data/spaces /app/data/blobs' </dev/null"
+    );
+    expect(deployScript).toContain(
+      '"${compose[@]}" --profile operations run --rm preflight </dev/null'
+    );
+    expect(deployScript).toContain('"${compose[@]}" up --detach --wait --remove-orphans');
+    expect(deployScript).toContain('echo "DEPLOY_SUCCEEDED revision=$revision"');
+  });
 });
