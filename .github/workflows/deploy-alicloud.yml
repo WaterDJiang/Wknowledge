@@ -24,6 +24,7 @@ jobs:
           POSTGRES_PASSWORD: ci-compose-password
           WKNOWLEDGE_CREDENTIAL_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
           WKNOWLEDGE_HTTP_HOST_PORT: 127.0.0.1:13000
+          WKNOWLEDGE_RELEASE_VERSION: ci-validate
         run: docker compose config --quiet
 
   deploy:

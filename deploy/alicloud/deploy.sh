@@ -66,7 +66,7 @@ git -C "$app_dir" checkout --detach --force "$revision"
 git -C "$app_dir" clean -ffd
 
 "${compose[@]}" config --quiet
-"${compose[@]}" build
+docker buildx build --allow network.host --load --tag "wknowledge-app:$revision" --file "$app_dir/deploy/Dockerfile" "$app_dir"
 "${compose[@]}" run --rm --no-deps --entrypoint sh web -c 'mkdir -p /app/data/spaces /app/data/blobs'
 "${compose[@]}" --profile operations run --rm preflight
 "${compose[@]}" up --detach --wait --remove-orphans

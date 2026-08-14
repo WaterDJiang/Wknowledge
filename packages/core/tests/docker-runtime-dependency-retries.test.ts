@@ -16,4 +16,13 @@ describe("Docker runtime dependency installation", () => {
     expect(dockerfile).toContain("rm -rf /var/lib/apt/lists/*");
     expect(dockerfile).not.toContain("--allow-unauthenticated");
   });
+
+  it("builds the shared runtime image with the required BuildKit entitlement", async () => {
+    const compose = await readFile(path.join(root, "docker-compose.yml"), "utf8");
+    const deployScript = await readFile(path.join(root, "deploy", "alicloud", "deploy.sh"), "utf8");
+
+    expect(deployScript).toContain("docker buildx build --allow network.host --load");
+    expect(deployScript).not.toContain('"${compose[@]}" build');
+    expect(compose).toContain('image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?');
+  });
 });

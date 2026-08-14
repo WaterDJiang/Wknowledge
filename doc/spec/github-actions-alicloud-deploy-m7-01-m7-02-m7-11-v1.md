@@ -25,7 +25,7 @@
 - 首次部署生成并保存 `POSTGRES_PASSWORD`、`WKNOWLEDGE_CREDENTIAL_KEY` 和发布配置到服务器受限文件；仓库、日志和 Actions 输出均不得包含其值。
 - 先执行 Compose 配置和 preflight，构建/迁移失败时不重载 Nginx；成功后才替换应用容器。
 - 宝塔 Nginx 继续占用公网 80/443；Wknowledge 网关不得公开监听 3000 或 13000。
-- 仅镜像构建阶段安装经 APT 签名校验的系统依赖时使用宿主机网络，以适配目标服务器 Docker 默认网络无法解析 Debian 源的已验证故障；运行时 Compose 网络与对外回环暴露规则不变。
+- 仅镜像构建阶段安装经 APT 签名校验的系统依赖时使用 BuildKit 明确授予的 `network.host`，以适配目标服务器 Docker 默认网络无法解析 Debian 源的已验证故障；Compose 只运行该固定提交构建的本地镜像，运行时网络与对外回环暴露规则不变。
 
 ## 5. 验收标准
 

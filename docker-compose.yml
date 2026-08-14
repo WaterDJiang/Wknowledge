@@ -14,6 +14,7 @@ services:
       retries: 20
 
   migrate:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     build:
       context: .
       dockerfile: deploy/Dockerfile
@@ -48,6 +49,7 @@ services:
         condition: service_healthy
 
   web:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     build:
       context: .
       dockerfile: deploy/Dockerfile
@@ -71,6 +73,7 @@ services:
       retries: 12
 
   worker:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     build:
       context: .
       dockerfile: deploy/Dockerfile
@@ -107,6 +110,7 @@ services:
         condition: service_healthy
 
   preflight:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     profiles: ["operations"]
     build:
       context: .
@@ -124,6 +128,7 @@ services:
       - wknowledge-data:/app/data:ro
 
   upgrade-check:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     profiles: ["operations"]
     build:
       context: .
@@ -135,6 +140,7 @@ services:
         condition: service_healthy
 
   wiki-schema-check:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     profiles: ["operations"]
     build:
       context: .
@@ -146,6 +152,7 @@ services:
       - wknowledge-data:/app/data:ro
 
   wiki-schema-migrate:
+    image: "wknowledge-app:${WKNOWLEDGE_RELEASE_VERSION:?WKNOWLEDGE_RELEASE_VERSION must be set}"
     profiles: ["operations"]
     build:
       context: .
