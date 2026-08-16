@@ -4,8 +4,7 @@ ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 WORKDIR /app
 
-RUN --network=host npm install --global corepack@0.31.0 \
-  && corepack enable \
+RUN --network=host npm install --global pnpm@10.29.3 \
   && sed -i 's|http://deb.debian.org/debian|http://mirrors.aliyun.com/debian|g; s|http://deb.debian.org/debian-security|http://mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list.d/debian.sources \
   && apt-get -o Acquire::Retries=3 update \
   && apt-get -o Acquire::Retries=3 install -y --no-install-recommends python3 python3-pip ffmpeg bubblewrap fonts-noto-cjk tesseract-ocr tesseract-ocr-chi-sim \
