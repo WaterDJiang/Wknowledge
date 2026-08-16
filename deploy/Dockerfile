@@ -25,7 +25,7 @@ RUN --network=host pnpm install --frozen-lockfile \
 
 RUN mkdir -p /app/data/spaces /app/data/blobs \
   && useradd --create-home --uid 10001 wknowledge \
-  && chown -R wknowledge:wknowledge /app/data
+  && chown -R wknowledge:wknowledge /app
 
 USER wknowledge
 EXPOSE 3000

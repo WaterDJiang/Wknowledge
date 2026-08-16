@@ -29,6 +29,7 @@
 - 构建阶段使用阿里云 Debian HTTP 镜像并保持 Debian 包签名校验；基础镜像安装 `ca-certificates` 前不使用 HTTPS 镜像。Actions SSH 设置保活，适配目标网络下载大型语言与多媒体依赖时连续数分钟无标准输出的传输特性。
 - Node 22.12 内置 Corepack 的签名密钥过旧时，构建层仅安装固定 `corepack@0.31.0` 后再启用锁定的 `pnpm@10.29.3`；不禁用包管理器签名验证或锁文件验证。
 - 远程脚本由 SSH 标准输入传入时，所有一次性 `docker compose run` 必须显式重定向标准输入为 `/dev/null`；不得让容器附着读取并吞掉后续部署命令。
+- 仅生成运行时凭据时使用限制性 umask；Git 检出前恢复普通文件权限。镜像在切换到非 root `wknowledge` 用户前必须赋予其 `/app` 读取与遍历权限，不依赖仓库可执行位。
 
 ## 5. 验收标准
 
@@ -36,6 +37,7 @@
 - GitHub：公开仓库包含许可证、`.gitignore` 生效、没有 `.env*` 或受管数据；Secrets 仅记录名称，不回显值。
 - 服务器：`wknowledge` Compose 服务健康，`127.0.0.1:13000/api/health/ready` 返回成功，既有容器和既有宝塔站点保持运行。
 - 脚本：一次性初始化与 preflight 容器不能消费 SSH 传入的脚本内容；其后 Compose 启动、内层健康检查和 `DEPLOY_SUCCEEDED` 均须实际执行。
+- 权限：在限制性部署账号 umask 下检出的源码仍可由镜像内非 root 用户读取 `deploy/preflight.mjs`、Next 构建产物和运行时依赖。
 - 域名：`knowledge.wattter.cn` A 记录指向目标公网 IP，证书签发后 HTTPS 访问成功。
 - 部署：Actions 运行结论为 `success`，生产健康检查成功；仅“推送已触发”不得表述为部署完成。
 

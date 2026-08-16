@@ -56,6 +56,9 @@ else
 fi
 chmod 600 "$runtime_env"
 
+# 保持运行时凭据仅部署账号可读；Git 检出和 Docker 构建上下文则必须可被镜像运行用户读取。
+umask 022
+
 if [[ ! -d "$app_dir/.git" ]]; then
   git clone --no-checkout "https://github.com/$repository.git" "$app_dir"
 fi

@@ -51,4 +51,13 @@ describe("Docker runtime dependency installation", () => {
     expect(deployScript).toContain('"${compose[@]}" up --detach --wait --remove-orphans');
     expect(deployScript).toContain('echo "DEPLOY_SUCCEEDED revision=$revision"');
   });
+
+  it("keeps checkout content readable for the non-root runtime user", async () => {
+    const dockerfile = await readFile(path.join(root, "deploy", "Dockerfile"), "utf8");
+    const deployScript = await readFile(path.join(root, "deploy", "alicloud", "deploy.sh"), "utf8");
+
+    expect(deployScript).toContain('chmod 600 "$runtime_env"\n\n# 保持运行时凭据');
+    expect(deployScript).toContain('umask 022\n\nif [[ ! -d "$app_dir/.git" ]]');
+    expect(dockerfile).toContain("chown -R wknowledge:wknowledge /app");
+  });
 });
