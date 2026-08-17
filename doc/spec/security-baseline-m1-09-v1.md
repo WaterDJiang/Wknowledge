@@ -11,6 +11,7 @@
 - 保持会话 Cookie 为 `HttpOnly`、`SameSite=Lax`、生产环境 `Secure`、路径 `/`。
 - 已登录用户的 `POST`、`PATCH`、`PUT`、`DELETE` 必须验证 `Origin` 与当前请求源一致，再执行状态写入。
 - 登录和邀请接受也验证同源请求，拒绝跨站提交。
+- HTTPS 终止在可信反向代理时，同源比较使用代理传入的 `X-Forwarded-Proto` 与实际 `Host`；容器内部 HTTP 跳转不得误判浏览器的 HTTPS 请求。
 - 用 PostgreSQL 保存哈希化的限流键；不保存原始 IP、邮箱、令牌、请求正文或 Cookie。
 - 登录、邀请接受、上传、任务控制、管理设置、空间管理、Wiki 审核/冲突和知识问答写审计路径接入限流。
 - 返回固定的 `CSRF_ORIGIN_DENIED`、`CSRF_ORIGIN_REQUIRED`、`RATE_LIMITED` 错误码和可重试时间；不回显内部异常。
@@ -34,6 +35,7 @@
 - 带已登录 Cookie 的跨源写请求返回 `403 CSRF_ORIGIN_DENIED`，不产生业务写入。
 - 缺少 `Origin` 的 Cookie 写请求返回 `403 CSRF_ORIGIN_REQUIRED`。
 - 同源写请求继续走既有 RBAC 和业务状态机。
+- `https://knowledge.wattter.cn` 经反向代理进入内部 HTTP Web 容器时，同源登录、注册和已登录写请求不得返回 `CSRF_ORIGIN_DENIED`；不同外部 Origin 仍返回该错误。
 - 同一限流键超过阈值返回 `429 RATE_LIMITED`，包含正整数 `retryAfterSeconds`，窗口结束后恢复。
 - 限流表与 API 响应不包含邮箱、令牌、Cookie 或请求正文。
 - 登录 Cookie 属性与现有浏览器登录流程保持兼容。

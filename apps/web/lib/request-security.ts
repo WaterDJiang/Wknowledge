@@ -22,6 +22,16 @@ function requestOrigin(request: Request): string | null {
   }
 }
 
+function requestProtocol(request: Request): string {
+  const forwarded = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",", 1)[0]
+    ?.trim()
+    .toLowerCase();
+  if (forwarded === "http" || forwarded === "https") return forwarded;
+  return new URL(request.url).protocol.slice(0, -1);
+}
+
 export function requireSameOrigin(request: Request) {
   const origin = requestOrigin(request);
   if (!origin)
@@ -33,7 +43,10 @@ export function requireSameOrigin(request: Request) {
     );
   const requestUrl = new URL(request.url);
   const requestHost = request.headers.get("host");
-  const expectedOrigin = requestHost ? `${requestUrl.protocol}//${requestHost}` : requestUrl.origin;
+  const protocol = requestProtocol(request);
+  const expectedOrigin = requestHost
+    ? `${protocol}://${requestHost}`
+    : `${protocol}://${requestUrl.host}`;
   if (origin !== expectedOrigin)
     return apiError(
       403,

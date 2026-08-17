@@ -13,19 +13,24 @@ export default function LoginPage() {
     event.preventDefault();
     setBusy(true);
     setError("");
-    const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: form.get("email"), password: form.get("password") })
-    });
-    if (!response.ok) {
-      const result = (await response.json()) as { message?: string };
-      setError(result.message ?? "登录失败");
+    try {
+      const form = new FormData(event.currentTarget);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: form.get("email"), password: form.get("password") })
+      });
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as { message?: string } | null;
+        setError(result?.message ?? "登录失败");
+        return;
+      }
+      router.replace("/workspace/resources");
+    } catch {
+      setError("网络连接失败，请稍后重试");
+    } finally {
       setBusy(false);
-      return;
     }
-    router.push("/workspace");
   }
 
   return (

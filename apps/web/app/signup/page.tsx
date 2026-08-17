@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -15,43 +18,49 @@ export default function SignupPage() {
     event.preventDefault();
     setBusy(true);
     setError("");
-    const response = await fetch("/api/auth/signup/send-code", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email })
-    });
-    if (!response.ok) {
-      const value = (await response.json().catch(() => null)) as { message?: string } | null;
-      setError(value?.message ?? "验证码发送失败");
+    try {
+      const response = await fetch("/api/auth/signup/send-code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      if (!response.ok) {
+        const value = (await response.json().catch(() => null)) as { message?: string } | null;
+        setError(value?.message ?? "验证码发送失败");
+        return;
+      }
+      setCode("");
+      setName("");
+      setPassword("");
+      setSent(true);
+    } catch {
+      setError("网络连接失败，请稍后重试");
+    } finally {
       setBusy(false);
-      return;
     }
-    setSent(true);
-    setBusy(false);
   }
 
   async function completeSignup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setError("");
-    const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/auth/signup/verify", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        email,
-        code: form.get("code"),
-        name: form.get("name"),
-        password: form.get("password")
-      })
-    });
-    if (!response.ok) {
-      const value = (await response.json().catch(() => null)) as { message?: string } | null;
-      setError(value?.message ?? "注册失败");
+    try {
+      const response = await fetch("/api/auth/signup/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, code, name, password })
+      });
+      if (!response.ok) {
+        const value = (await response.json().catch(() => null)) as { message?: string } | null;
+        setError(value?.message ?? "注册失败");
+        return;
+      }
+      router.replace("/workspace/resources");
+    } catch {
+      setError("网络连接失败，请稍后重试");
+    } finally {
       setBusy(false);
-      return;
     }
-    router.push("/workspace");
   }
 
   return (
@@ -72,11 +81,13 @@ export default function SignupPage() {
       </section>
       <section className="auth-panel">
         {sent ? (
-          <form className="auth-form" onSubmit={completeSignup}>
+          <form key="signup-verify" className="auth-form" onSubmit={completeSignup}>
             <header>
               <p className="eyebrow">VERIFY EMAIL</p>
               <h2>完成注册</h2>
-              <p>验证码已发送至 {email}，10 分钟内有效。</p>
+              <p id="signup-email-note">
+                验证码已发送至 <strong>{email}</strong>，10 分钟内有效。
+              </p>
             </header>
             <label>
               验证码
@@ -85,12 +96,25 @@ export default function SignupPage() {
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 pattern="[0-9]{6}"
+                placeholder="输入 6 位验证码"
+                aria-describedby="signup-email-note"
+                maxLength={6}
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
                 required
               />
             </label>
             <label>
               显示名称
-              <input name="name" autoComplete="name" minLength={2} maxLength={80} required />
+              <input
+                name="name"
+                autoComplete="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                minLength={2}
+                maxLength={80}
+                required
+              />
             </label>
             <label>
               设置密码
@@ -98,6 +122,8 @@ export default function SignupPage() {
                 name="password"
                 type="password"
                 autoComplete="new-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 minLength={8}
                 required
               />
@@ -108,7 +134,7 @@ export default function SignupPage() {
             </button>
           </form>
         ) : (
-          <form className="auth-form" onSubmit={sendCode}>
+          <form key="signup-request" className="auth-form" onSubmit={sendCode}>
             <header>
               <p className="eyebrow">START TRIAL</p>
               <h2>开始免费试用</h2>
