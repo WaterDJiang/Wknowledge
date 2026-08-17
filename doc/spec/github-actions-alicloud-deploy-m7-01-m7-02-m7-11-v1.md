@@ -25,6 +25,7 @@
 - 首次部署生成并保存 `POSTGRES_PASSWORD`、`WKNOWLEDGE_CREDENTIAL_KEY` 和发布配置到服务器受限文件；仓库、日志和 Actions 输出均不得包含其值。
 - 先执行 Compose 配置和 preflight，构建/迁移失败时不重载 Nginx；成功后才替换应用容器。
 - 宝塔 Nginx 继续占用公网 80/443；Wknowledge 网关不得公开监听 3000 或 13000。
+- 宝塔终止 TLS 后传入的 `X-Forwarded-Proto` 必须由 Docker gateway 保留给 Web；gateway 不得以内部 HTTP 的 `$scheme` 覆盖外部 HTTPS 协议。
 - 仅镜像构建阶段安装 APT、Node 与 Python 依赖及编译时使用 BuildKit 明确授予的 `network.host`，以适配目标服务器 Docker 默认网络无法解析外部源的已验证故障；Compose 只运行该固定提交构建的本地镜像，运行时网络与对外回环暴露规则不变。
 - 构建阶段使用阿里云 Debian HTTP 镜像并保持 Debian 包签名校验；基础镜像安装 `ca-certificates` 前不使用 HTTPS 镜像。Actions SSH 设置保活，适配目标网络下载大型语言与多媒体依赖时连续数分钟无标准输出的传输特性。
 - 构建层直接安装固定 `pnpm@10.29.3`，生产运行命令不得依赖 Corepack 用户缓存或在容器启动时查询 npm registry；依赖安装仍使用冻结锁文件。
@@ -42,6 +43,7 @@
 - 网关权限：宿主机挂载的 Nginx 配置可由 gateway 的 `101:101` 读取，容器不因 `/etc/nginx/nginx.conf` 的 `EACCES` 退出。
 - 离线启动：镜像构建完成后，`migrate`、`web` 和 `worker` 调用固定 pnpm 时不访问 npm registry；目标服务器运行时 DNS 或外网不可用不影响本地命令解析。
 - 域名：`knowledge.wattter.cn` A 记录指向目标公网 IP，证书签发后 HTTPS 访问成功。
+- 反代链路：`https://knowledge.wattter.cn` 的同源登录/注册请求可通过 Web 的 CSRF 校验；不同 Origin 仍被拒绝。
 - 部署：Actions 运行结论为 `success`，生产健康检查成功；仅“推送已触发”不得表述为部署完成。
 
 ## 6. 非范围

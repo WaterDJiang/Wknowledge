@@ -21,5 +21,7 @@ describe("Compose upload gateway", () => {
     expect(gatewayService).toContain("read_only: true");
     expect(gateway).toContain("client_max_body_size 9m;");
     expect(gateway).toContain("proxy_pass http://web:3000;");
+    expect(gateway).toContain("map $http_x_forwarded_proto $wknowledge_client_scheme");
+    expect(gateway).toContain("proxy_set_header X-Forwarded-Proto $wknowledge_client_scheme;");
   });
 });
