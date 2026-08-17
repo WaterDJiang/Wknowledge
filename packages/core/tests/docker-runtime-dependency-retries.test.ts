@@ -58,6 +58,7 @@ describe("Docker runtime dependency installation", () => {
 
     expect(deployScript).toContain('chmod 600 "$runtime_env"\n\n# 保持运行时凭据');
     expect(deployScript).toContain('umask 022\n\nif [[ ! -d "$app_dir/.git" ]]');
+    expect(deployScript).toContain('chmod 644 "$app_dir/deploy/nginx/wknowledge.conf"');
     expect(dockerfile).toContain("chown -R wknowledge:wknowledge /app");
   });
 });

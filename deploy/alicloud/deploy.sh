@@ -67,6 +67,7 @@ git -C "$app_dir" remote set-url origin "https://github.com/$repository.git"
 git -C "$app_dir" fetch --depth 1 origin "$revision"
 git -C "$app_dir" checkout --detach --force "$revision"
 git -C "$app_dir" clean -ffd
+chmod 644 "$app_dir/deploy/nginx/wknowledge.conf"
 
 "${compose[@]}" config --quiet
 docker buildx build --allow network.host --load --tag "wknowledge-app:$revision" --file "$app_dir/deploy/Dockerfile" "$app_dir"
