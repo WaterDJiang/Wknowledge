@@ -50,7 +50,14 @@ describe("deployment preflight CLI", () => {
 
     expect(JSON.parse(result.stdout)).toMatchObject({
       status: "ok",
-      checks: ["database_url", "release_version", "credential_key", "storage_roots", "capacity"]
+      checks: [
+        "database_url",
+        "release_version",
+        "credential_key",
+        "signup_delivery",
+        "storage_roots",
+        "capacity"
+      ]
     });
     expect(result.stdout).not.toContain(value.root);
     expect(result.stdout).not.toContain("private-password");
@@ -77,5 +84,26 @@ describe("deployment preflight CLI", () => {
     await expect(
       run(value, { WKNOWLEDGE_MIN_FREE_BYTES: "999999999999999999999999999999" })
     ).rejects.toMatchObject({ stderr: "PREFLIGHT_CAPACITY_INSUFFICIENT\n" });
+  });
+
+  it("requires configured delivery when public signup is enabled", async () => {
+    const value = await fixture();
+
+    await expect(run(value, { WKNOWLEDGE_ALLOW_SIGNUP: "true" })).rejects.toMatchObject({
+      stderr: "PREFLIGHT_SIGNUP_FROM_EMAIL_REQUIRED\n"
+    });
+    await expect(
+      run(value, {
+        WKNOWLEDGE_ALLOW_SIGNUP: "true",
+        WKNOWLEDGE_EMAIL_FROM: "Wknowledge <noreply@example.com>"
+      })
+    ).rejects.toMatchObject({ stderr: "PREFLIGHT_SIGNUP_DELIVERY_REQUIRED\n" });
+    await expect(
+      run(value, {
+        WKNOWLEDGE_ALLOW_SIGNUP: "true",
+        WKNOWLEDGE_EMAIL_FROM: "Wknowledge <noreply@example.com>",
+        WKNOWLEDGE_RESEND_API_KEY: "re_test"
+      })
+    ).resolves.toMatchObject({ stdout: expect.stringContaining('"signup_delivery"') });
   });
 });

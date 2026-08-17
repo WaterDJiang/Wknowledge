@@ -90,6 +90,7 @@ export {
 } from "./learning-generation-requests";
 export { dispatchPendingSkillRunOutbox, type SkillRunOutboxQueue } from "./skill-run-outbox";
 export { executeBuiltinSkillRun } from "./builtin-skill-execution";
+export { completeTrialSignup, requestTrialSignupCode, type SignupCodeSender } from "./trial-signup";
 export {
   executeDynamicSkillRun,
   persistPlanComposeCandidate,

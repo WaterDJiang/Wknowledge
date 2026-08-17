@@ -10,6 +10,7 @@
 | 备份与受控恢复                | 开发中   | M7-05 维护窗口快照、清单校验与拒绝覆盖的恢复边界              | [backup-restore-m7-05-v1.md](backup-restore-m7-05-v1.md)                                                                               |
 | 部署前检查与凭据配置          | 开发中   | M7-02 配置、目录隔离、容量与凭据主密钥的无泄露预检            | [deployment-preflight-m7-02-v1.md](deployment-preflight-m7-02-v1.md)                                                                   |
 | GitHub Actions 阿里云部署     | 开发中   | M7-01/M7-02/M7-11 的固定 SHA、回环网关、宝塔反代和密钥边界    | [github-actions-alicloud-deploy-m7-01-m7-02-m7-11-v1.md](github-actions-alicloud-deploy-m7-01-m7-02-m7-11-v1.md)                       |
+| 公开邮箱试用注册              | 开发中   | M1-02/M1-09 的验证码注册、个人试用空间与发信配置              | [email-verification-trial-signup-m1-02-m1-09-v1.md](email-verification-trial-signup-m1-02-m1-09-v1.md)                                 |
 | 本地运行时环境加载            | 开发中   | M7-02 Web/Worker/测试共享根 `.env`，不内置或暴露密钥          | [local-runtime-environment-m7-02-v1.md](local-runtime-environment-m7-02-v1.md)                                                         |
 | 数据库升级检查                | 开发中   | M7-03 Drizzle 历史、SQL hash 与待迁移计划的只读校验           | [database-upgrade-check-m7-03-v1.md](database-upgrade-check-m7-03-v1.md)                                                               |
 | Wiki Schema 迁移              | 开发中   | M7-04 v1 空间清单、双读检查、原子清单化迁移与回退边界         | [wiki-schema-migration-m7-04-v1.md](wiki-schema-migration-m7-04-v1.md)                                                                 |

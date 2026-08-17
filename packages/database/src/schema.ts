@@ -203,6 +203,19 @@ export const requestRateLimits = pgTable("request_rate_limit", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 
+export const signupVerificationCodes = pgTable(
+  "signup_verification_code",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    codeHash: text("code_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [index("signup_verification_email_created_idx").on(table.email, table.createdAt)]
+);
+
 export const knowledgeSpaces = pgTable(
   "knowledge_space",
   {

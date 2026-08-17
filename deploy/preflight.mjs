@@ -46,6 +46,23 @@ function credentialKey(value) {
     fail("PREFLIGHT_CREDENTIAL_KEY_INVALID");
 }
 
+function signupDeliveryConfiguration(environment) {
+  const enabled = environment.WKNOWLEDGE_ALLOW_SIGNUP ?? "false";
+  if (enabled !== "true" && enabled !== "false") fail("PREFLIGHT_SIGNUP_FLAG_INVALID");
+  if (enabled === "false") return;
+  const from = environment.WKNOWLEDGE_EMAIL_FROM?.trim();
+  if (!from) fail("PREFLIGHT_SIGNUP_FROM_EMAIL_REQUIRED");
+  if (environment.WKNOWLEDGE_SMTP_HOST?.trim()) {
+    if (
+      !environment.WKNOWLEDGE_SMTP_USERNAME?.trim() ||
+      !environment.WKNOWLEDGE_SMTP_PASSWORD?.trim()
+    )
+      fail("PREFLIGHT_SIGNUP_SMTP_AUTH_REQUIRED");
+    return;
+  }
+  if (!environment.WKNOWLEDGE_RESEND_API_KEY?.trim()) fail("PREFLIGHT_SIGNUP_DELIVERY_REQUIRED");
+}
+
 function minimumFreeBytes(value) {
   if (value === undefined || value === "") return DEFAULT_MIN_FREE_BYTES;
   if (!/^\d+$/.test(value)) fail("PREFLIGHT_MIN_FREE_BYTES_INVALID");
@@ -73,6 +90,7 @@ async function preflight() {
   productionPassword(process.env.POSTGRES_PASSWORD);
   releaseVersion(process.env.WKNOWLEDGE_RELEASE_VERSION);
   credentialKey(process.env.WKNOWLEDGE_CREDENTIAL_KEY);
+  signupDeliveryConfiguration(process.env);
   const dataRoot = await managedDirectory(
     process.env.WKNOWLEDGE_DATA_ROOT,
     path.join(process.cwd(), "data", "spaces"),
@@ -91,7 +109,14 @@ async function preflight() {
   process.stdout.write(
     `${JSON.stringify({
       status: "ok",
-      checks: ["database_url", "release_version", "credential_key", "storage_roots", "capacity"],
+      checks: [
+        "database_url",
+        "release_version",
+        "credential_key",
+        "signup_delivery",
+        "storage_roots",
+        "capacity"
+      ],
       availableBytes: available.map((value) => value.toString())
     })}\n`
   );

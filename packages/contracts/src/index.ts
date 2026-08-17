@@ -1726,6 +1726,21 @@ export const loginInputSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8)
 });
+export const requestSignupCodeInputSchema = z.object({
+  email: z
+    .string()
+    .email()
+    .transform((value) => value.trim().toLowerCase())
+});
+export const completeSignupInputSchema = z.object({
+  email: z
+    .string()
+    .email()
+    .transform((value) => value.trim().toLowerCase()),
+  code: z.string().regex(/^\d{6}$/),
+  name: z.string().trim().min(2).max(80),
+  password: z.string().min(8).max(200)
+});
 export const createInvitationInputSchema = z.object({
   email: z
     .string()

@@ -75,6 +75,9 @@ export default function LoginPage() {
           <button className="button button-primary full" disabled={busy}>
             {busy ? "验证中…" : "登录 →"}
           </button>
+          <p className="auth-note">
+            还没有账号？<Link href="/signup">开始免费试用</Link>
+          </p>
         </form>
       </section>
     </main>

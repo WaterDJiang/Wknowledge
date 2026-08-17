@@ -19,6 +19,15 @@ export const can = (role: Role, required: Role): boolean => roleRank[role] >= ro
 export const hashSessionToken = (token: string): string =>
   createHash("sha256").update(token).digest("hex");
 
+export async function createSession(user: { id: string; email: string; name: string }) {
+  const token = randomBytes(32).toString("base64url");
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  await getDatabase()
+    .insert(schema.sessions)
+    .values({ userId: user.id, tokenHash: hashSessionToken(token), expiresAt });
+  return { token, expiresAt, user };
+}
+
 export async function login(email: string, password: string) {
   const db = getDatabase();
   const [user] = await db
@@ -27,13 +36,7 @@ export async function login(email: string, password: string) {
     .where(eq(schema.users.email, email.toLowerCase()))
     .limit(1);
   if (!user || user.disabled || !(await compare(password, user.passwordHash))) return null;
-
-  const token = randomBytes(32).toString("base64url");
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await db
-    .insert(schema.sessions)
-    .values({ userId: user.id, tokenHash: hashSessionToken(token), expiresAt });
-  return { token, expiresAt, user: { id: user.id, email: user.email, name: user.name } };
+  return createSession({ id: user.id, email: user.email, name: user.name });
 }
 
 export async function authenticate(token: string | undefined) {

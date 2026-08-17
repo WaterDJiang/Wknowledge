@@ -53,7 +53,16 @@ services:
     build:
       context: .
       dockerfile: deploy/Dockerfile
-    environment: *runtime-environment
+    environment:
+      <<: *runtime-environment
+      WKNOWLEDGE_ALLOW_SIGNUP: ${WKNOWLEDGE_ALLOW_SIGNUP:-false}
+      WKNOWLEDGE_RESEND_API_KEY: ${WKNOWLEDGE_RESEND_API_KEY:-}
+      WKNOWLEDGE_EMAIL_FROM: ${WKNOWLEDGE_EMAIL_FROM:-}
+      WKNOWLEDGE_SMTP_HOST: ${WKNOWLEDGE_SMTP_HOST:-}
+      WKNOWLEDGE_SMTP_PORT: ${WKNOWLEDGE_SMTP_PORT:-587}
+      WKNOWLEDGE_SMTP_USERNAME: ${WKNOWLEDGE_SMTP_USERNAME:-}
+      WKNOWLEDGE_SMTP_PASSWORD: ${WKNOWLEDGE_SMTP_PASSWORD:-}
+      WKNOWLEDGE_SMTP_TLS_INSECURE: ${WKNOWLEDGE_SMTP_TLS_INSECURE:-false}
     command: ["pnpm", "--filter", "@wknowledge/web", "start"]
     expose:
       - "3000"
