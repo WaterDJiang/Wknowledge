@@ -5,17 +5,25 @@ import {
   createAgentMessageInputSchema,
   groundedQueryResultSchema
 } from "@wknowledge/contracts";
-import { runBoundKnowledgeAgent } from "@wknowledge/agent-runtime";
+import { runBoundKnowledgeAgent, runPiKnowledgeTurn } from "@wknowledge/agent-runtime";
 import { getWikiPage } from "@wknowledge/wiki";
 import {
   beginAgentSessionRun,
   completeAgentSessionRun,
   assertAgentSessionBindingsReadable,
+  recordAgentLoopRouting,
   resolveAgentSessionContext,
   settleAgentSessionRun,
   stopAgentSessionRun
 } from "@wknowledge/core";
 import { apiError, currentUser, dataRoot } from "../../../../../lib/api";
+import {
+  knowledgeToolCallRecords,
+  piSessionComponent,
+  piSessionPolicyBridge,
+  piToolStreamEvents,
+  resolveServerAgentLoop
+} from "../../../../../lib/pi-agent-turn";
 import {
   clearAgentRunStream,
   registerAgentRunStream,
@@ -27,6 +35,10 @@ import { createManagedChatGateway, isManagedSkillEnabled } from "../../../../../
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// Pi is the normal server entrypoint. `internal` is an explicit, audited
+// incident rollback only; local SQLite App selection never reaches this route.
+const SERVER_AGENT_LOOP = resolveServerAgentLoop(process.env.WKNOWLEDGE_AGENT_LOOP);
 
 function strictestDataPolicy(
   policies: Array<"local_only" | "cloud_allowed" | "cloud_allowed_after_redaction">
@@ -99,6 +111,13 @@ export async function POST(request: Request, context: { params: Promise<{ sessio
       question: parsed.data.message,
       runId: randomUUID()
     });
+    await recordAgentLoopRouting({
+      organizationId: resolved.session.organizationId,
+      sessionId,
+      runId: begun.run.id,
+      userId: user.id,
+      loop: SERVER_AGENT_LOOP
+    });
     const runAbort = registerAgentRunStream(begun.run.id, user.id, startedAt);
     const stopOnDisconnect = () => {
       stopActiveAgentRunStream(begun.run.id, user.id);
@@ -116,6 +135,68 @@ export async function POST(request: Request, context: { params: Promise<{ sessio
         const execute = async () => {
           try {
             emit({ type: "run.started", runId: begun.run.id, userMessage: begun.userMessage });
+            if (SERVER_AGENT_LOOP === "pi") {
+              // Pi 主路径与应急 internal 路径共用 begin/SSE/settle 持久化契约。
+              const piTurn = await runPiKnowledgeTurn({
+                runId: begun.run.id,
+                component: piSessionComponent(resolved, dataRoot()),
+                gateway: await createManagedChatGateway(resolved.session.organizationId, user.id),
+                dataPolicy: strictestDataPolicy(
+                  resolved.bindings.map(({ dataPolicy }) => dataPolicy)
+                ),
+                question: parsed.data.message,
+                conversation: begun.conversation.map(({ role, content }) => ({
+                  role,
+                  content
+                })),
+                policy: piSessionPolicyBridge({
+                  assertReadable: () => assertAgentSessionBindingsReadable(sessionId, user.id)
+                }),
+                signal: runAbort.signal
+              });
+              if (runAbort.signal.aborted) throw new Error("AGENT_RUN_CANCELLED");
+              for (const event of piToolStreamEvents(piTurn.events, begun.run.id, {
+                searchedPages: piTurn.result.evidence.searchedPages,
+                evidenceCount: piTurn.result.evidence.items.length
+              })) {
+                await assertAgentSessionBindingsReadable(sessionId, user.id);
+                emit(event);
+              }
+              for (const text of answerChunks(piTurn.result.answer.answer)) {
+                if (runAbort.signal.aborted) throw new Error("AGENT_RUN_CANCELLED");
+                await assertAgentSessionBindingsReadable(sessionId, user.id);
+                emit({ type: "assistant.delta", runId: begun.run.id, text });
+                await new Promise<void>((resolve) => setTimeout(resolve, 0));
+              }
+              const completed = await completeAgentSessionRun({
+                runId: begun.run.id,
+                sessionId,
+                userId: user.id,
+                result: groundedQueryResultSchema.parse(piTurn.result),
+                durationMs: Date.now() - startedAt,
+                toolCalls: knowledgeToolCallRecords(piTurn.events, {
+                  searchedPages: piTurn.result.evidence.searchedPages,
+                  evidenceCount: piTurn.result.evidence.items.length,
+                  bindingCount: resolved.bindings.length
+                }).map((record) => ({
+                  name: record.name,
+                  bindingIds: resolved.bindings.map(({ id }) => id),
+                  inputSummary: record.inputSummary,
+                  outputSummary: record.outputSummary,
+                  resultCount: record.resultCount,
+                  searchedPages: record.searchedPages,
+                  durationMs: 0
+                }))
+              });
+              emit({
+                type: "run.completed",
+                runId: begun.run.id,
+                result: piTurn.result,
+                run: completed.run,
+                assistantMessageId: completed.assistantMessageId
+              });
+              return;
+            }
             const result = await runBoundKnowledgeAgent(
               begun.run.id,
               resolved.bindings.map(

@@ -12,6 +12,7 @@ import {
   uniqueIndex,
   uuid
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import type {
   LearningProgressReport,
   QueryRunModelCall,
@@ -1349,6 +1350,36 @@ export const learningReportOutbox = pgTable(
       table.status,
       table.dispatchLeaseExpiresAt,
       table.createdAt
+    )
+  ]
+);
+
+export const agentSkillInstallations = pgTable(
+  "agent_skill_installation",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    skillName: text("skill_name").notNull(),
+    version: text("version").notNull(),
+    digest: text("digest").notNull(),
+    sourceFormat: text("source_format").notNull(),
+    sourceVersion: text("source_version"),
+    sourceDigest: text("source_digest"),
+    publisher: text("publisher").notNull(),
+    installedAt: timestamp("installed_at", { withTimezone: true }).notNull().defaultNow(),
+    enabled: boolean("enabled").notNull().default(true),
+    executable: boolean("executable").notNull().default(false)
+  },
+  (table) => [
+    uniqueIndex("agent_skill_installation_enabled_unique")
+      .on(table.organizationId, table.skillName)
+      .where(sql`enabled`),
+    index("agent_skill_installation_history_idx").on(
+      table.organizationId,
+      table.skillName,
+      table.installedAt
     )
   ]
 );

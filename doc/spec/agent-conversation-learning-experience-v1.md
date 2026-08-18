@@ -1,5 +1,7 @@
 # Agent 对话与学习体验需求 Spec v1
 
+> 2026-08-17：Pi 候选判断与内部 Loop 默认方向已由 [Pi 核心组件升级 Spec](pi-core-component-platform-upgrade-m3-m5-m6-m7-v1.md) 和 ADR 0004 取代；本文的对话、学习、来源与安全需求继续有效。
+
 ## 1. 关联计划
 
 - 工作包：`M5-00/M5-01/M5-02/M5-03/M5-10/M5-12`、`M6-01/M6-03/M6-04/M6-06/M6-08/M6-10/M6-11/M6-12/M6-13`。
@@ -67,7 +69,7 @@
 
 ## 5. 开源采用边界
 
-- Pi 的 `@mariozechner/pi-agent-core` 是 M5-00 的首个可嵌入运行时候选；进入依赖前执行 M5-00 Spike。
+- Pi 的 `@earendil-works/pi-agent-core` 已被选为目标默认核心；进入依赖和默认路径前执行 M5-13 供应链、等价轨迹与安全门禁。
 - OpenCode 是开源 Skill/权限和会话交互模式的参考；首期不嵌入其完整 Coding Agent 服务，而是以 Wknowledge `SkillAdapter` 重现经验证的按需发现和 `allow/ask/deny` 语义。
 - Claude Code 只借鉴官方公开的 Skills、Hooks、权限和会话设计，不作为开源 CLI 依赖。
 - 所有第三方能力置于 Wknowledge Adapter 后；权限、数据库、Markdown Wiki 和审计保持本项目实现。
@@ -188,7 +190,7 @@ interface PracticeEvidence {
 - 对话中的“指定路径”必须由已选择知识空间/页面/资源版本生成受管虚拟路径；用户不能输入服务器、本机或 Blob 的真实路径。
 - 对话结果先给出基于证据的自然语言答复，来源资料作为单独可打开的引用区；不能把原始命中列表当成问答答案。
 - 学习必须经过“选择内容 → 计划候选 → 用户确认 → 固定版本原文 → 有依据练习 → 记录/报告”链路；任一步缺少来源、确认或版本锚点时不得伪造完成。
-- Pi、OpenCode 和 Claude Code 的采用分别限于 Agent core 候选、Skill/权限模式参考和公开 UX/安全规范参考；三者都不能绕开 Wknowledge 的权限、审计、SourceLocator 与数据真相源。
+- Pi 限于 `AgentCoreAdapter` 后的目标核心，OpenCode 和 Claude Code 分别限于 Skill/权限模式参考和公开 UX/安全规范参考；三者都不能绕开 Wknowledge 的权限、审计、SourceLocator 与数据真相源。
 
 ## 12. 2026-08-14 实施增补
 

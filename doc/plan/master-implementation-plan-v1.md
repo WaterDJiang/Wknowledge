@@ -120,20 +120,21 @@ flowchart LR
 
 目标：交付用户可浏览、可查询、可审核、可回源的 Markdown 知识库。
 
-| ID    | 工作包      | 关键交付                                  | 依赖        |
-| ----- | ----------- | ----------------------------------------- | ----------- |
-| M3-01 | Wiki Schema | Frontmatter、稳定 ID、页面类型、迁移      | M2-08       |
-| M3-02 | 空间索引    | 根索引、分域索引、摘要和别名              | M3-01       |
-| M3-03 | 编译器      | extracted/synthesized、材料拆页、幂等合并 | M2-09/M3-01 |
-| M3-04 | 冲突策略    | conflicted、并列事实、人工裁决            | M3-03       |
-| M3-05 | 人工审核锁  | reviewed 页面 diff/approval               | M3-03       |
-| M3-06 | 发布协议    | 空间锁、staging、manifest、原子发布       | M3-03       |
-| M3-07 | Lint        | Schema、链接、来源、索引、敏感模式        | M3-06       |
-| M3-08 | Wiki API    | 目录、列表、页面、版本、diff、审核        | M3-02/07    |
-| M3-09 | Wiki UI     | 知识库导航、阅读器、状态、来源面板        | M3-08       |
-| M3-10 | Query       | index-first、证据包、自然语言回答、拒答   | M3-02/M5-06 |
-| M3-11 | 查询记录    | 候选、引用、模型调用、Embedding=0         | M3-10       |
-| M3-12 | 黄金集      | 100 资料、50+ 问题、Recall@10             | M3-09/10    |
+| ID    | 工作包      | 关键交付                                     | 依赖        |
+| ----- | ----------- | -------------------------------------------- | ----------- |
+| M3-01 | Wiki Schema | Frontmatter、稳定 ID、页面类型、迁移         | M2-08       |
+| M3-02 | 空间索引    | 根索引、分域索引、摘要和别名                 | M3-01       |
+| M3-03 | 编译器      | extracted/synthesized、材料拆页、幂等合并    | M2-09/M3-01 |
+| M3-04 | 冲突策略    | conflicted、并列事实、人工裁决               | M3-03       |
+| M3-05 | 人工审核锁  | reviewed 页面 diff/approval                  | M3-03       |
+| M3-06 | 发布协议    | 空间锁、staging、manifest、原子发布          | M3-03       |
+| M3-07 | Lint        | Schema、链接、来源、索引、敏感模式           | M3-06       |
+| M3-08 | Wiki API    | 目录、列表、页面、版本、diff、审核           | M3-02/07    |
+| M3-09 | Wiki UI     | 知识库导航、阅读器、状态、来源面板           | M3-08       |
+| M3-10 | Query       | index-first、证据包、自然语言回答、拒答      | M3-02/M5-06 |
+| M3-11 | 查询记录    | 候选、引用、模型调用、Embedding=0            | M3-10       |
+| M3-12 | 黄金集      | 100 资料、50+ 问题、Recall@10                | M3-09/10    |
+| M3-13 | Wiki 组件化 | Knowledge Component Port、Repository 与 Tool | M3-10/M5-13 |
 
 退出门禁：
 
@@ -187,6 +188,10 @@ flowchart LR
 | M5-10 | 对话运行 UI         | 类 Codex/Claude 会话、范围路径、流式回答、工具/Skill、审批和独立来源区    |
 | M5-11 | 安全验证            | 注入、越权、出网、资源耗尽                                                |
 | M5-12 | 知识上下文绑定      | 多空间选择、受管虚拟路径、版本证据和撤权                                  |
+| M5-13 | Pi Core 生产适配器  | Pi Agent Loop、事件、模型与工具桥接                                       |
+| M5-14 | Agent Skills 兼容   | `SKILL.md`、受管 ResourceLoader、安装快照                                 |
+| M5-15 | 组件 Tool Registry  | Tool Schema、Policy/Approval Hook、审计                                   |
+| M5-16 | Pi 会话持久化桥接   | Session/Event Repository、本地与服务器投影                                |
 
 退出门禁：
 
@@ -201,21 +206,23 @@ flowchart LR
 
 目标：完成从知识到计划、学习、练习、测评和掌握度的闭环。
 
-| ID    | 工作包        | 关键交付                                                       |
-| ----- | ------------- | -------------------------------------------------------------- |
-| M6-01 | 学习域 Schema | goal/course/unit/kp/question/attempt/review                    |
-| M6-02 | 学习画像      | declared/observed/inferred 与纠正                              |
-| M6-03 | 学习计划      | 选材/目标、Skill 候选、确认、版本、调整                        |
-| M6-04 | 课程编排      | module/unit/kp/resource/activity                               |
-| M6-05 | 学习事件      | 追加事件、进度重建                                             |
-| M6-06 | 练习生成      | 已学范围、知识点、难度、来源、候选与审核                       |
-| M6-07 | 测评发布      | 题卷版本、规则、时间和权限                                     |
-| M6-08 | 作答与评分    | 客观确定性、主观量表、复核                                     |
-| M6-09 | 错题与掌握度  | 证据快照、时间衰减、解释                                       |
-| M6-10 | 学习 UI       | 目标、计划、课程、练习、测评、结果                             |
-| M6-11 | 学习 Skill    | diagnose/plan/course/question/rubric                           |
-| M6-12 | 原文学习器    | 固定版本 text/PDF/image/audio/video 阅读、播放、位置恢复和定位 |
-| M6-13 | 学习报告      | 结构报告、HTML、PNG/PDF Artifact 与回查                        |
+| ID    | 工作包          | 关键交付                                                       |
+| ----- | --------------- | -------------------------------------------------------------- |
+| M6-01 | 学习域 Schema   | goal/course/unit/kp/question/attempt/review                    |
+| M6-02 | 学习画像        | declared/observed/inferred 与纠正                              |
+| M6-03 | 学习计划        | 选材/目标、Skill 候选、确认、版本、调整                        |
+| M6-04 | 课程编排        | module/unit/kp/resource/activity                               |
+| M6-05 | 学习事件        | 追加事件、进度重建                                             |
+| M6-06 | 练习生成        | 已学范围、知识点、难度、来源、候选与审核                       |
+| M6-07 | 测评发布        | 题卷版本、规则、时间和权限                                     |
+| M6-08 | 作答与评分      | 客观确定性、主观量表、复核                                     |
+| M6-09 | 错题与掌握度    | 证据快照、时间衰减、解释                                       |
+| M6-10 | 学习 UI         | 目标、计划、课程、练习、测评、结果                             |
+| M6-11 | 学习 Skill      | diagnose/plan/course/question/rubric                           |
+| M6-12 | 原文学习器      | 固定版本 text/PDF/image/audio/video 阅读、播放、位置恢复和定位 |
+| M6-13 | 学习报告        | 结构报告、HTML、PNG/PDF Artifact 与回查                        |
+| M6-14 | Assessment 组件 | 候选、题卷、作答、评分、复核 Tool/API                          |
+| M6-15 | Learning 组件   | 计划、课程、事件、进度和报告 Tool/API                          |
 
 退出门禁：
 
@@ -231,19 +238,22 @@ flowchart LR
 
 目标：系统可被非开发者按文档安装、运行、升级和恢复。
 
-| ID    | 工作包             | 关键交付                                            |
-| ----- | ------------------ | --------------------------------------------------- |
-| M7-01 | 镜像与 Compose     | pinned image、非 root、healthcheck                  |
-| M7-02 | 配置与密钥         | preflight、secret、轮换、脱敏                       |
-| M7-03 | 数据库迁移         | expand/migrate/contract、升级检查                   |
-| M7-04 | Wiki Schema 迁移   | 双读、迁移、校验、回退                              |
-| M7-05 | 备份恢复           | DB/Blob/Wiki 一致性清单和演练                       |
-| M7-06 | 监控告警           | HTTP、队列、解析、模型、容量                        |
-| M7-07 | 限流与预算         | 用户/组织/IP/Provider                               |
-| M7-08 | 审计导出           | 检索、导出和保留策略                                |
-| M7-09 | 性能压测           | 部门级目标和容量建议                                |
-| M7-10 | 安全测试与复扫整改 | 越权、SSRF、压缩炸弹、注入、沙箱；复扫 `R1–R6` 闭环 |
-| M7-11 | 运维文档           | 安装、升级、备份、恢复、runbook                     |
+| ID    | 工作包               | 关键交付                                            |
+| ----- | -------------------- | --------------------------------------------------- |
+| M7-01 | 镜像与 Compose       | pinned image、非 root、healthcheck                  |
+| M7-02 | 配置与密钥           | preflight、secret、轮换、脱敏                       |
+| M7-03 | 数据库迁移           | expand/migrate/contract、升级检查                   |
+| M7-04 | Wiki Schema 迁移     | 双读、迁移、校验、回退                              |
+| M7-05 | 备份恢复             | DB/Blob/Wiki 一致性清单和演练                       |
+| M7-06 | 监控告警             | HTTP、队列、解析、模型、容量                        |
+| M7-07 | 限流与预算           | 用户/组织/IP/Provider                               |
+| M7-08 | 审计导出             | 检索、导出和保留策略                                |
+| M7-09 | 性能压测             | 部门级目标和容量建议                                |
+| M7-10 | 安全测试与复扫整改   | 越权、SSRF、压缩炸弹、注入、沙箱；复扫 `R1–R6` 闭环 |
+| M7-11 | 运维文档             | 安装、升级、备份、恢复、runbook                     |
+| M7-12 | 可移植运行档案       | SQLite/PostgreSQL、local queue/pg-boss Port         |
+| M7-13 | 核心迁移与旧组件清理 | 双路径对比、默认切换、回退、旧入口和死配置删除      |
+| M7-14 | 本地 App 安装验收    | 一键初始化、升级、备份恢复和完整知识/考试闭环       |
 
 退出门禁：
 
@@ -272,7 +282,8 @@ flowchart LR
 
 ```text
 M1 权限 → M2 任务/节点 → M3 Wiki API/UI → M4 回源
-→ M5 安全运行时 → M6 学习闭环 → M7 整体验收
+→ M5 Pi 安全运行时 → M3-13 Wiki 组件 → M6 Assessment/Learning 组件
+→ M7-12 可移植运行档案 → M7-13 清理 → M7-14 本地与服务器验收
 ```
 
 可并行：
@@ -282,5 +293,6 @@ M1 权限 → M2 任务/节点 → M3 Wiki API/UI → M4 回源
 - M3 Wiki 阅读 UI、编译器和黄金集工具。
 - M4 Office、OCR、ASR、视频与预览器。
 - M5 Sandbox、Model Gateway 和运行记录 UI。
+- M5-14 Agent Skills 与 M7-12 SQLite Adapter 可在 Pi Adapter 稳定后并行。
 
-不可并行越过的门禁：没有 M2 标准节点不做 M4；没有 M3 可浏览 Wiki 不开始学习题目；没有 M5 权限/审计不启用外部 Skill 和云模型。
+不可并行越过的门禁：没有 M2 标准节点不做 M4；没有 M3 可浏览 Wiki 不开始学习题目；没有 M5 权限/审计不启用外部 Skill 和云模型；没有 Pi Tool/Policy Bridge 不迁移考试与学习生成；没有两个观察窗口旧调用为 0 不删除旧生产路径。

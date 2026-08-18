@@ -1,5 +1,7 @@
 # Agent Core Adapter 准入 Spike M5-00 Spec v1
 
+> 本文是已验证的历史基线。2026-08-17 起，Pi 生产采用与旧内部 Loop 清理由 [Pi 核心组件升级 Spec](pi-core-component-platform-upgrade-m3-m5-m6-m7-v1.md) 和 ADR 0004 接续。
+
 ## 1. 关联计划
 
 - 工作包：`M5-00`。

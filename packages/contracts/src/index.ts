@@ -589,6 +589,74 @@ export const skillManifestSchema = z.object({
 });
 export type SkillManifest = z.infer<typeof skillManifestSchema>;
 
+const manifestRelativePathSchema = z
+  .string()
+  .min(1)
+  .max(512)
+  .refine(
+    (value) =>
+      !value.startsWith("/") &&
+      !value.includes("\\") &&
+      !value.includes("\0") &&
+      value
+        .split("/")
+        .every((segment) => segment.length > 0 && segment !== "." && segment !== ".."),
+    "AGENT_SKILL_MANIFEST_PATH_UNSAFE"
+  );
+
+/**
+ * `wknowledge.manifest.json`: the executable extension contract of an Agent
+ * Skills directory. It only declares what a skill needs to run; identity,
+ * source, version and digests live in the immutable installation snapshot.
+ */
+export const agentSkillManifestSchema = z.object({
+  runtime: z.enum(["typescript-json-cli", "python-json-cli"]),
+  entry: manifestRelativePathSchema,
+  inputSchema: jsonSchemaSchema,
+  outputSchema: jsonSchemaSchema,
+  requiredCapabilities: z.array(modelCapabilitySchema),
+  permissions: skillManifestSchema.shape.permissions,
+  limits: skillManifestSchema.shape.limits,
+  artifacts: z.array(manifestRelativePathSchema).max(64).default([])
+});
+export type AgentSkillManifest = z.infer<typeof agentSkillManifestSchema>;
+
+/**
+ * Immutable installation snapshot for an organization-installed Agent Skill
+ * (spec §6.2): identity, source, version and digests live here — not in the
+ * skill directory. `digest` pins the discovered content (entry listing +
+ * SKILL.md + manifest); a mismatch at resolution time fails closed.
+ */
+export const agentSkillInstallationSnapshotSchema = z.object({
+  id: z.string().uuid(),
+  organizationId: z.string().uuid(),
+  skillName: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
+  version: z.string().min(1).max(64),
+  digest: z.string().regex(/^sha256:[a-f0-9]{64}$/),
+  sourceFormat: z.enum(["skill.json", "agent-skills-directory"]),
+  sourceVersion: z.string().min(1).max(64).optional(),
+  sourceDigest: z
+    .string()
+    .regex(/^sha256:[a-f0-9]{64}$/)
+    .optional(),
+  publisher: z.string().min(1).max(200),
+  installedAt: z.string().datetime({ offset: true }),
+  enabled: z.boolean(),
+  executable: z.boolean()
+});
+export type AgentSkillInstallationSnapshot = z.infer<typeof agentSkillInstallationSnapshotSchema>;
+
+export const agentSkillInstallRequestSchema = z.object({
+  skillName: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
+  version: z.string().min(1).max(64).optional()
+});
+export type AgentSkillInstallRequest = z.infer<typeof agentSkillInstallRequestSchema>;
+
+export const agentSkillRevokeRequestSchema = z.object({
+  skillName: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/)
+});
+export type AgentSkillRevokeRequest = z.infer<typeof agentSkillRevokeRequestSchema>;
+
 export const modelProviderLocationSchema = z.enum(["local", "cloud"]);
 export type ModelProviderLocation = z.infer<typeof modelProviderLocationSchema>;
 

@@ -45,6 +45,60 @@ export {
 } from "./operations-health";
 export { dispatchPendingProcessingOutbox, type ProcessingOutboxQueue } from "./job-outbox";
 export {
+  createInMemoryJobQueuePort,
+  type JobQueuePort,
+  type QueuedJobRecord,
+  type QueuedJobState
+} from "./job-queue-port";
+export {
+  createInMemoryAssessmentComponent,
+  type AssessmentCandidate,
+  type AssessmentCandidateItem,
+  type AssessmentComponent,
+  type AssessmentItemKind,
+  type AssessmentSnapshot,
+  type AttemptSnapshot,
+  type GradeSnapshot,
+  type ReviewTask
+} from "./assessment-component-port";
+export {
+  createInMemoryLearningComponent,
+  type ActiveLearningPlan,
+  type LearningComponent,
+  type LearningEvent,
+  type LearningEventKind,
+  type LearningPlanCandidate,
+  type LearningPlanCandidateUnit,
+  type LearningProgress,
+  type LearningReportSnapshot
+} from "./learning-component-port";
+export {
+  installAgentSkill,
+  listOrganizationSkillInstallations,
+  resolveOrganizationInstalledSkills,
+  revokeAgentSkill,
+  type InstallAgentSkillInput
+} from "./agent-skill-installations";
+export {
+  persistAgentCoreEventProjection,
+  type AgentEventProjectionOutcome
+} from "./agent-run-event-projection";
+export { createSqliteJobQueuePort } from "./sqlite-job-queue";
+export { createPostgresJobQueuePort } from "./postgres-job-queue";
+export {
+  createInMemoryAgentSessionRepository,
+  type AgentSessionRepository,
+  type RepositoryRunEvent,
+  type RepositorySessionMessage
+} from "./agent-session-repository-port";
+export { createSqliteAgentSessionRepository } from "./sqlite-agent-session-repository";
+export {
+  diffAgentTurnResults,
+  recordAgentLoopRouting,
+  type AgentLoopKind,
+  type AgentTurnDiff
+} from "./agent-loop-routing";
+export {
   addAgentSessionContextBinding,
   addAgentSessionSpaceBinding,
   assertAgentSessionBindingsReadable,

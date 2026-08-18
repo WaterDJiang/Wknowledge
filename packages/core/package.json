@@ -11,8 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@wknowledge/blob-store": "workspace:*",
+    "@wknowledge/agent-runtime": "workspace:*",
     "@wknowledge/auth": "workspace:*",
+    "@wknowledge/blob-store": "workspace:*",
     "@wknowledge/contracts": "workspace:*",
     "@wknowledge/database": "workspace:*",
     "@wknowledge/skill-runtime": "workspace:*",

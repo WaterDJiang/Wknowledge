@@ -11,13 +11,18 @@ describe("Docker runtime dependency installation", () => {
     expect(dockerfile).toContain("RUN --network=host npm install --global pnpm@10.29.3");
     expect(dockerfile).not.toContain("corepack");
     expect(dockerfile).toContain("RUN --network=host pnpm install --frozen-lockfile");
-    expect(dockerfile).toContain("http://mirrors.aliyun.com/debian");
+    expect(dockerfile).toContain("https://mirrors.aliyun.com/debian");
+    expect(dockerfile).toContain("https://deb.debian.org/debian");
+    expect(dockerfile).toContain("bootstrap_runtime_certificates() {");
+    expect(dockerfile).toContain("install_runtime_dependencies() {");
+    expect(dockerfile).toContain("if ! install_runtime_dependencies; then");
     expect(dockerfile).toContain("apt-get -o Acquire::Retries=3 update");
     expect(dockerfile).toContain(
       "apt-get -o Acquire::Retries=3 install -y --no-install-recommends"
     );
     expect(dockerfile).toContain("rm -rf /var/lib/apt/lists/*");
     expect(dockerfile).not.toContain("--allow-unauthenticated");
+    expect(dockerfile).not.toContain("Acquire::https::Verify-Peer=false");
   });
 
   it("builds the shared runtime image with the required BuildKit entitlement", async () => {

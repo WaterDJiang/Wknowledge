@@ -1,5 +1,7 @@
 # Agent、Skill 与学习闭环产品化 Spec v1
 
+> 2026-08-17：本文的产品行为与安全门禁继续有效；Pi 的采用状态、组件化边界和旧路径清理由 [Pi 核心组件升级 Spec](pi-core-component-platform-upgrade-m3-m5-m6-m7-v1.md) 接续。
+
 ## 1. 关联计划
 
 - 工作包：`M5-00` 至 `M5-12`、`M6-01` 至 `M6-13`，以及媒体前置 `M4-05/M4-06/M4-08/M4-09`。
@@ -108,12 +110,12 @@
 
 | 候选/参考     | 采用位置                                    | 本期允许复用                               | 禁止事项                                                          |
 | ------------- | ------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------- |
-| Pi agent core | `AgentCoreAdapter` 后的可替换候选           | 事件、工具循环、停止、消息转换、上下文裁剪 | 不作为权限、Sandbox、数据库、BlobStore 或密钥真相源               |
+| Pi agent core | `AgentCoreAdapter` 后的目标默认核心         | 事件、工具循环、停止、消息转换、上下文裁剪 | 不作为权限、Sandbox、数据库、BlobStore 或密钥真相源               |
 | OpenCode      | 自有 `SkillAdapter`/Policy 的交互与语义参考 | Skill 摘要发现、按需加载、`allow/ask/deny` | 不读取 `opencode.json`，不嵌入完整 Coding Agent、Shell 或主机权限 |
 | Claude Code   | 自有工具状态、审批和 Hook 生命周期 UX 对照  | 拒绝优先、工具前后状态、失败可见           | 不运行 CLI、账户、Hook 命令或宿主机工具                           |
 
 - 新依赖进入仓库前必须在隔离夹具中完成版本/commit、许可证、依赖树、生命周期脚本、摘要、20 条脚本化轨迹、取消/注入/替换测试审查。
-- 任何候选未通过时保留内部 Loop/Adapter；不能因为引入框架而降低 RBAC、SourceLocator、Worker Sandbox 或 Markdown-first 查询约束。
+- Pi 未通过供应链与替换门禁时保留内部 Loop/Adapter；不能因为引入框架而降低 RBAC、SourceLocator、Worker Sandbox 或 Markdown-first 查询约束。
 
 ### 9.4 增量验收
 

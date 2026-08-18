@@ -65,65 +65,64 @@ export class InternalAgentCoreAdapter implements AgentCoreAdapter {
     }
 
     yield { type: "run.started", runId: input.runId };
-    const requested = new Set<string>();
-    const completed = new Set<string>();
-    let terminal = false;
-
-    for (const event of input.script) {
-      if (terminal) traceError();
+    for (const event of validateAgentCoreScript(input.script)) {
       if (input.signal?.aborted) {
         yield { type: "run.stopped", runId: input.runId, reason: "cancelled" };
         return;
       }
-
-      switch (event.type) {
-        case "assistant.delta":
-          validateSummary(event.text);
-          yield { type: event.type, runId: input.runId, text: event.text };
-          break;
-        case "tool.requested":
-          validateToolCallId(event.toolCallId);
-          validateToolName(event.tool);
-          validateSummary(event.inputSummary);
-          if (requested.has(event.toolCallId)) traceError();
-          requested.add(event.toolCallId);
-          yield {
-            type: "tool.requested",
-            runId: input.runId,
-            toolCallId: event.toolCallId,
-            tool: event.tool,
-            inputSummary: event.inputSummary
-          };
-          break;
-        case "tool.completed":
-          validateToolCallId(event.toolCallId);
-          validateSummary(event.outputSummary);
-          if (!requested.has(event.toolCallId) || completed.has(event.toolCallId)) traceError();
-          completed.add(event.toolCallId);
-          yield {
-            type: "tool.completed",
-            runId: input.runId,
-            toolCallId: event.toolCallId,
-            outputSummary: event.outputSummary
-          };
-          break;
-        case "run.completed":
-          if (requested.size !== completed.size) traceError();
-          terminal = true;
-          yield { type: event.type, runId: input.runId };
-          break;
-        case "run.failed":
-          validateSummary(event.code);
-          terminal = true;
-          yield { type: event.type, runId: input.runId, code: event.code };
-          break;
-        default:
-          traceError();
-      }
+      yield { ...event, runId: input.runId };
     }
-
-    if (!terminal) traceError();
   }
+}
+
+/**
+ * Shared script validator: enforces the same ordering/shape rules for every
+ * AgentCoreAdapter implementation. Invalid scripts throw AGENT_CORE_TRACE_INVALID
+ * instead of being silently corrected.
+ */
+export function validateAgentCoreScript(
+  script: readonly AgentCoreScriptEvent[]
+): AgentCoreScriptEvent[] {
+  const requested = new Set<string>();
+  const completed = new Set<string>();
+  let terminal = false;
+  const validated: AgentCoreScriptEvent[] = [];
+
+  for (const event of script) {
+    if (terminal) traceError();
+    switch (event.type) {
+      case "assistant.delta":
+        validateSummary(event.text);
+        break;
+      case "tool.requested":
+        validateToolCallId(event.toolCallId);
+        validateToolName(event.tool);
+        validateSummary(event.inputSummary);
+        if (requested.has(event.toolCallId)) traceError();
+        requested.add(event.toolCallId);
+        break;
+      case "tool.completed":
+        validateToolCallId(event.toolCallId);
+        validateSummary(event.outputSummary);
+        if (!requested.has(event.toolCallId) || completed.has(event.toolCallId)) traceError();
+        completed.add(event.toolCallId);
+        break;
+      case "run.completed":
+        if (requested.size !== completed.size) traceError();
+        terminal = true;
+        break;
+      case "run.failed":
+        validateSummary(event.code);
+        terminal = true;
+        break;
+      default:
+        traceError();
+    }
+    validated.push(event);
+  }
+
+  if (!terminal) traceError();
+  return validated;
 }
 
 export async function collectAgentCoreEvents(

@@ -11,7 +11,7 @@
 
 ## 开发环境
 
-- Node.js 22.12+ · pnpm 10.29.3 · TypeScript 5.9 strict/ES2022
+- Node.js 22.19+（Pi 核心 `@earendil-works/pi-agent-core` 的 engine 要求）· pnpm 10.29.3 · TypeScript 5.9 strict/ES2022
 - Next.js 16 App Router · React 19 · PostgreSQL · Drizzle · pg-boss · Zod
 - Vitest 4 · Playwright 1.58 · ESLint 9 · Prettier 3
 - Python 仅作为文档解析 JSON CLI，不访问业务数据库、不提供 HTTP 服务。

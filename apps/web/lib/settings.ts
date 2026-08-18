@@ -240,7 +240,7 @@ function builtinSkillsRoot(): string {
   return path.join(workspaceRoot(), "skills/builtin");
 }
 
-function installedSkillsRoot(): string {
+export function installedSkillsRoot(): string {
   return path.join(workspaceRoot(), "skills/installed");
 }
 

@@ -15,8 +15,10 @@
 
 ## ADR
 
-| ADR  | 状态 | 决策                                        | 文件                                                                         |
-| ---- | ---- | ------------------------------------------- | ---------------------------------------------------------------------------- |
-| 0001 | 接受 | Markdown-first LLM Wiki，向量只能是派生缓存 | [0001-markdown-first-wiki.md](0001-markdown-first-wiki.md)                   |
-| 0002 | 接受 | TypeScript 全栈 + Node Worker，无 FastAPI   | [0002-typescript-fullstack-runtime.md](0002-typescript-fullstack-runtime.md) |
-| 0003 | 接受 | 所有知识与学习证据使用 SourceLocator        | [0003-source-traceability.md](0003-source-traceability.md)                   |
+| ADR  | 状态         | 决策                                                     | 文件                                                                         |
+| ---- | ------------ | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 0001 | 接受         | Markdown-first LLM Wiki，向量只能是派生缓存              | [0001-markdown-first-wiki.md](0001-markdown-first-wiki.md)                   |
+| 0002 | 接受         | TypeScript 全栈 + Node Worker，无 FastAPI                | [0002-typescript-fullstack-runtime.md](0002-typescript-fullstack-runtime.md) |
+| 0003 | 接受         | 所有知识与学习证据使用 SourceLocator                     | [0003-source-traceability.md](0003-source-traceability.md)                   |
+| 0004 | 接受，待实施 | Pi 作为 Agent 核心，Wiki/考试/学习作为可组合领域组件     | [0004-pi-core-component-runtime.md](0004-pi-core-component-runtime.md)       |
+| 0005 | 冻结         | Pi 0.84.2 事件/Tool/Session 到 Wknowledge 契约的映射基线 | [0005-pi-core-mapping-frozen.md](0005-pi-core-mapping-frozen.md)             |

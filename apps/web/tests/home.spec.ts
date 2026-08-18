@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+const hasDatabase = Boolean(process.env.DATABASE_URL);
+
 test("landing page explains traceable knowledge workflow", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /让每个答案/ })).toBeVisible();
@@ -316,8 +318,13 @@ test("access management APIs require authentication", async ({ request }) => {
     headers: { origin: "http://127.0.0.1:3000" },
     data: { token: "x".repeat(43), name: "邀请用户", password: "password-123" }
   });
-  expect(accept.status()).toBe(409);
-  await expect(accept.json()).resolves.toMatchObject({ code: "INVITATION_INVALID" });
+  if (hasDatabase) {
+    expect(accept.status()).toBe(409);
+    await expect(accept.json()).resolves.toMatchObject({ code: "INVITATION_INVALID" });
+  } else {
+    expect(accept.status()).toBe(503);
+    await expect(accept.json()).resolves.toMatchObject({ code: "REQUEST_GUARD_UNAVAILABLE" });
+  }
 });
 
 test("public write APIs reject cross-site and missing-origin requests", async ({ request }) => {

@@ -2,6 +2,10 @@
 
 进入项目后先读本文件，再按需读取各分类的 `INDEX.md` 和 1–2 个相关分片。
 
+- 2026-08-17 架构方向已升级为“Pi 核心 + 外部领域组件 + 本地 SQLite/线上 PostgreSQL 双运行配置”。`M5-13` S0 已完成版本锁定：`@earendil-works/pi-agent-core@0.84.2` 已安装（精确 pin），Node 基线统一 22.19+，[供应链档案](ref/pi-core-supply-chain-v1.md)与 [ADR 0005 映射冻结](design/0005-pi-core-mapping-frozen.md) 已建立。S1 自动化退出门禁已闭合（50 条新测试：20 条轨迹等价/拒绝、网关桥真实 `agentLoop` 工具环含取消/错误/多轮的逐事件等价、源码权限守卫；并修复消息复制与取消终态两项生产缺陷）。`M5-14` 四个切片已实现标准 `SKILL.md` 解析、instruction-only/executable 分级（`wknowledge.manifest.json` 执行契约 schema）、显式受管根目录发现 `discoverAgentSkillCatalog`（内容 digest 含条目列表）、`convertLegacySkillManifest` 转换器（digest/版本映射保留，真实内置夹具全部转换通过）与 `resolveInstalledAgentSkills` 固定版本解析（撤权过滤、缺目录/digest 漂移 fail-closed、未安装不可见，共 70 条新测试）。`M5-15` 首切片已交付 `createAgentToolRegistry` 与 `AgentToolPolicyBridge`（pi-free 契约映射 Pi before/after 钩子；撤权/伪造参数/注入裁剪/terminate 均经真实 `agentLoop` 集成验证，18 条新测试）。`M3-13` 三个切片已交付 `KnowledgeComponent` 端口（范围固定、路径不越界）、共享 `searchBoundKnowledge`（零行为变化，组件与现有 agent 的 EvidenceBundle 逐字段相等）、`createKnowledgeTools`（knowledge.list/search/read 注册为 Pi Tool，新旧路径工具结果逐字节相等）与 `finalizeGroundedAnswer` 最终回答契约（伪造引用/非法输出诚实降级）——三层等价证据齐备，共 21 条新测试。`M7-12` 首切片已交付 `JobQueuePort` 契约与内存本地队列适配器（幂等/租约/死信/恢复语义，10 条契约测试）。`M6-14`/`M6-15` 首切片已交付 `AssessmentComponent` 与 `LearningComponent` 端口及语义基准（Skill 只产候选、领域控制发布/作答/评分/计划/进度/报告，快照不可变不依赖 Pi Session，14 条契约测试）。本地 `postgres:17-alpine` 测试容器解锁后根测试 **550 条零跳过全绿**；`M5-14` 第五切片已交付安装快照 DB 持久化（`0047` 迁移 + 幂等安装/换版历史/组织单启用版本/resolve 组合 fail-closed）；`M5-16` 已交付 Pi 运行事件投影（AgentCoreEvent 流 → agent_run_event + run 终态落定，SSE 重放真相源不变，7 条 DB 测试）与 `runPiKnowledgeTurn` 生产循环编排器（整轮 GroundedQueryResult 与内部路径深度相等，4 条测试）。Web 会话路由 Pi 旁路已接线（`pi-agent-turn.ts` 纯函数辅助 + 共用 begin/SSE/settle 脚手架的旁路分支,默认关闭,S7 门禁后切默认）。SQLite 本地队列适配器已落地（`node:sqlite` 零新依赖、实验性 flag 门控,与内存基准跑同一契约套件全绿——S4 队列双实现契约证据成立）;`agent_loop.routing` 审计计数与 `diffAgentTurnResults` 为 S7 观察窗口提供真相源,旁路开关 env 可覆盖。SQLite Repository/事务适配器、旁路等价验证执行（需真实 Provider）、S7 观察期切默认与 S8 安装验收待后续推进。见 [升级 Spec](spec/pi-core-component-platform-upgrade-m3-m5-m6-m7-v1.md)、[ADR 0004](design/0004-pi-core-component-runtime.md) 与 [开发排期](plan/pi-core-component-platform-upgrade-v1.md)。
+
+- 2026-08-18 架构入口校正：服务器 `apps/web` 对话请求现**默认进入 Pi**；仅显式 `WKNOWLEDGE_AGENT_LOOP=internal` 才是受审计的短期应急回退。SQLite 不再被表述为云端 Web 的可选数据库：它只属于 M7-14 独立本地 App 组合根，与云端 PostgreSQL/pg-boss、Docker Compose、数据目录严格分离。
+
 ## 文档分类
 
 | 分类    | 用途                         | 入口                               |
@@ -72,10 +76,10 @@
 - 最新完成单元：`M1-09` Cookie 同源防护、PostgreSQL 持久化限流与错误脱敏已通过自动化门禁。
 - 最新验证切片：`M2-06/M2-11` Worker 执行租约、启动恢复与过期任务安全重新入队，以及 `M3-06` Wiki 空间发布租约与恢复已通过数据库/队列边界回归。
 - 最新浏览器验收：`M3-04/M3-05b/M3-08b` 编辑者在隔离空间完成候选接受、候选拒绝与并列冲突裁决；来源面板和状态同步正确。
-- 最新规划变更：M5 后续采用类 Codex/Claude 的 `knowledge.search/read` ToolCall、脱敏审计和受管知识虚拟路径；M6 固定“内容选择 → 确认计划 → 原文学习 → 生成候选/作答/评分 → 可回查报告 JSON → Worker 图片”闭环。Pi 仅通过 Adapter Spike 评估，OpenCode 仅借鉴 Skill/权限模式，Claude Code 仅对照公开 UX/Hook；硬约束、页面/API、排期和验收切片已收录于 [扩展计划](plan/agent-learning-expansion-v1.md)。
+- 最新规划变更：M5 后续采用 Pi 核心承载对话循环、会话事件和工具调度，Wknowledge 保持 `knowledge.search/read`、脱敏审计、受管知识虚拟路径和领域策略；M6 固定“内容选择 → 确认计划 → 原文学习 → 生成候选/作答/评分 → 可回查报告 JSON → Worker 图片”闭环。OpenCode/Claude Code 继续只作参考。
 - 最新验证单元：`M5-12` 新会话创建页现在按空间、Wiki 页面、资料版本或已确认课程显式组装范围清单；服务端只写入已校验 Binding，指定子范围不再隐式扩大为整空间，且无效目标不留下 session/binding/audit 半成品。真实 Provider 的已登录对话 E2E 仍后置。
 - 最新验证单元：`M4-06` 视频关键帧可在 Worker 本地 OCR 画面文字，并以同一历史视频版本、关键帧时间和像素 bbox 入库；面板仅展示“该帧 OCR 文字”，不冒充视频理解。真实 MP4 的已登录人工预览与画面理解仍后置。
-- 最新计划优化：`M5/M6` 已将“受管多轮对话 + 指定知识 Binding/虚拟路径 + 对话 Skill”和“选材 → 计划候选 → 固定原文 → 练习/评分 → 报告图片”排入同一执行队列；Pi 为 Adapter 候选，OpenCode/Claude Code 仅按已审查边界借鉴，不以完整 Coding Agent 方式嵌入。
+- 最新计划优化：`M5/M6` 已将“Pi 受管多轮对话 + 指定知识 Binding/虚拟路径 + Agent Skill”和“选材 → 计划候选 → 固定原文 → 练习/评分 → 报告图片”排入同一执行队列；Pi 只作为无特权核心嵌入，不带入完整 Coding Agent CLI、默认工具或权限。
 - 最新验证单元：`M5-03/M5-06` 已将完整空间 Worker Skill 与页面/资料版本/Course 子范围强制区分；子范围无法创建会被整空间读取的 Skill 审批或队列任务。
 - 最新开发单元：`M6-03` 已将合格 `plan-compose` 的结构化输出暂存为仅本人可读的候选产物；只有当前学习者已完成的 Run、显式选材、可覆盖 Binding 和一致 SourceLocator 才能一次性创建带 version/digest 追溯的 draft，确认前不创建 active Plan 或 Course。真实模型调用、受管安装与页面触发仍后置。
 - 最新验证单元：`M6-03` 学习内容页已显示本人已完成 Run 的计划候选及固定来源，并可用新目标一次性创建草稿；页面不能改写 Unit/资料版本或重复物化候选，真实生成触发仍后置。
@@ -90,7 +94,7 @@
 - 最新验证单元：`M5-08/M4-05` 已为受管 OpenAI-compatible Provider 增加显式 `speech_to_text` 能力、加密配置、multipart 调用、`verbose_json` 分段和空间数据策略路由。合法分段形成独立音频时间定位；缺失、重叠或越界分段统一回退整段媒体定位。真实 Provider/WAV 浏览器验收仍待管理员配置受管服务后执行。
 - 最新开发单元：`M5-08/M4-05` 已将首个媒体格式收敛为条件化 WAV 直传：仅存在策略相容的健康 ASR Provider 时才入队，Worker 先探测、再重核 Provider，最后生成可追溯转写节点；未配置真实 Provider 时仍明确拒绝，不制造失败任务。
 - 最新验证单元：`M4-06` 已将本地视频容器的音轨和内嵌字幕流清单、文本型内嵌字幕 cue、受限 JPEG 关键帧及条件化第一音轨转写写入受控媒体节点；MP4 已可上传，关键帧可按时间回源，但不形成画面结论。
-- 最新完成单元：`M5-00` 已建立无特权的内部 `AgentCoreAdapter` 与 20 条合成事件轨迹，作为 Pi 等候选的可替换基线。Pi 保持待供应链审查，OpenCode/Claude Code 仅作模式/公开规范参考。
+- 历史完成单元：`M5-00` 已建立无特权的内部 `AgentCoreAdapter` 与 20 条合成事件轨迹，现作为 Pi 迁移的等价基线；供应链与替换门禁通过前保留，之后按 `M7-13` 清理旧生产导出。
 - 最新开发单元：`M5-01/M5-02/M5-10/M5-11/M5-12` 已实现多轮会话、1–8 个知识范围 Binding、受管 `/knowledge/...` 虚拟路径、零 Embedding 检索、证据快照、SSE 运行阶段、可停止状态和完整工具轨迹；当前轮会带入有限的已完成历史以理解追问，但历史不构成证据或权限来源。范围可为整空间、已发布 Wiki 页面、已处理资料版本或已确认课程，检索在 EvidenceBundle 前过滤。真实 Provider 与完整已登录对话 E2E 仍在后续切片。
 - 最新验证单元：`M5-12/M6-04` 已完成空间、Wiki 页面、ResourceVersion 和已确认 Course 的稳定 ID Binding；Course 在每轮只解析所选空间内的固定 CourseUnit 版本，不接受手工虚拟路径或动态课程集合。
 - 最新验证单元：`M5-10` 已将每轮受管 Markdown-first 检索以 `knowledge.search` ToolCall 原子记录 Binding、计数、耗时和脱敏摘要；会话刷新后可显示工具状态，不保存问题或知识正文。

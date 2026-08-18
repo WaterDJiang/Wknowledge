@@ -60,6 +60,8 @@ describe("Office parser node limits", () => {
     }
   });
 
+  // 生成 10001 段 DOCX 夹具本身 CPU 密集;全仓并行套件(含数据库用例)下
+  // 15s 预算会被 fixture 生成耗尽,预算断言(DOCX_NODE_LIMIT)与解析无关。
   it("rejects DOCX documents beyond the paragraph budget before emitting nodes", async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), "wknowledge-docx-node-limit-"));
     try {
@@ -83,7 +85,7 @@ describe("Office parser node limits", () => {
     } finally {
       await rm(directory, { recursive: true, force: true });
     }
-  }, 15_000);
+  }, 60_000);
 
   it("rejects PPTX documents beyond the slide budget before emitting nodes", async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), "wknowledge-pptx-node-limit-"));
