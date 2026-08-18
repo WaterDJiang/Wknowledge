@@ -676,6 +676,138 @@ export const modelProviderCapabilitiesSchema = z
     "MODEL_PROVIDER_CAPABILITIES_INVALID"
   );
 
+export const modelProviderEndpointOptionSchema = z.object({
+  id: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
+  label: z.string().min(1).max(120),
+  baseUrl: z
+    .string()
+    .url()
+    .refine((value) => ["http:", "https:"].includes(new URL(value).protocol))
+});
+export type ModelProviderEndpointOption = z.infer<typeof modelProviderEndpointOptionSchema>;
+
+export const modelProviderModelOptionSchema = z.object({
+  id: z.string().min(1).max(200),
+  label: z.string().min(1).max(200)
+});
+export type ModelProviderModelOption = z.infer<typeof modelProviderModelOptionSchema>;
+
+export const modelProviderPresetSchema = z.object({
+  id: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/),
+  name: z.string().min(1).max(100),
+  kind: z.literal("openai_compatible"),
+  location: modelProviderLocationSchema,
+  capabilities: modelProviderCapabilitiesSchema,
+  endpoints: z.array(modelProviderEndpointOptionSchema).min(1).max(8),
+  models: z.array(modelProviderModelOptionSchema).min(1).max(64)
+});
+export type ModelProviderPreset = z.infer<typeof modelProviderPresetSchema>;
+
+export const managedModelProviderPresetSchema = modelProviderPresetSchema.extend({
+  allowed: z.boolean()
+});
+export type ManagedModelProviderPreset = z.infer<typeof managedModelProviderPresetSchema>;
+
+/**
+ * Public metadata only. Credentials and deployment policy never belong in this catalog.
+ * Keep model IDs stable once published; add new IDs instead of silently changing them.
+ */
+export const MODEL_PROVIDER_PRESETS: readonly ModelProviderPreset[] = [
+  {
+    id: "openai",
+    name: "OpenAI",
+    kind: "openai_compatible",
+    location: "cloud",
+    capabilities: ["chat"],
+    endpoints: [{ id: "global", label: "OpenAI Global", baseUrl: "https://api.openai.com/v1" }],
+    models: [
+      { id: "gpt-4o-mini", label: "GPT-4o mini" },
+      { id: "gpt-4.1-mini", label: "GPT-4.1 mini" }
+    ]
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    kind: "openai_compatible",
+    location: "cloud",
+    capabilities: ["chat"],
+    endpoints: [{ id: "global", label: "DeepSeek API", baseUrl: "https://api.deepseek.com" }],
+    models: [
+      { id: "deepseek-v4-flash", label: "DeepSeek V4 Flash" },
+      { id: "deepseek-v4-pro", label: "DeepSeek V4 Pro" }
+    ]
+  },
+  {
+    id: "qwen",
+    name: "阿里云百炼",
+    kind: "openai_compatible",
+    location: "cloud",
+    capabilities: ["chat"],
+    endpoints: [
+      {
+        id: "beijing-compatible",
+        label: "北京 · Compatible Mode",
+        baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      }
+    ],
+    models: [
+      { id: "qwen-plus", label: "Qwen Plus" },
+      { id: "qwen-max", label: "Qwen Max" },
+      { id: "qwen-turbo", label: "Qwen Turbo" }
+    ]
+  },
+  {
+    id: "moonshot",
+    name: "Moonshot / Kimi",
+    kind: "openai_compatible",
+    location: "cloud",
+    capabilities: ["chat", "vision"],
+    endpoints: [
+      { id: "global", label: "Moonshot API · Global", baseUrl: "https://api.moonshot.ai/v1" }
+    ],
+    models: [
+      { id: "kimi-k2.6", label: "Kimi K2.6" },
+      { id: "kimi-k2.5", label: "Kimi K2.5" },
+      { id: "kimi-k2-thinking", label: "Kimi K2 Thinking" }
+    ]
+  },
+  {
+    id: "zhipu",
+    name: "智谱 GLM",
+    kind: "openai_compatible",
+    location: "cloud",
+    capabilities: ["chat"],
+    endpoints: [
+      { id: "global", label: "智谱开放平台", baseUrl: "https://open.bigmodel.cn/api/paas/v4" }
+    ],
+    models: [
+      { id: "glm-5.2", label: "GLM-5.2" },
+      { id: "glm-5.1", label: "GLM-5.1" },
+      { id: "glm-5", label: "GLM-5" }
+    ]
+  },
+  {
+    id: "ollama",
+    name: "Ollama",
+    kind: "openai_compatible",
+    location: "local",
+    capabilities: ["chat"],
+    endpoints: [{ id: "localhost", label: "本机 Ollama", baseUrl: "http://127.0.0.1:11434/v1" }],
+    models: [
+      { id: "qwen3", label: "Qwen 3" },
+      { id: "llama3.1", label: "Llama 3.1" }
+    ]
+  }
+];
+
+export const BUILTIN_CLOUD_PROVIDER_HOSTS: readonly string[] = [
+  ...new Set(
+    MODEL_PROVIDER_PRESETS.filter((preset) => preset.location === "cloud").flatMap((preset) =>
+      preset.endpoints.map((endpoint) => new URL(endpoint.baseUrl).hostname)
+    )
+  )
+];
+
 const httpUrlSchema = z
   .url()
   .refine((value) => ["http:", "https:"].includes(new URL(value).protocol));

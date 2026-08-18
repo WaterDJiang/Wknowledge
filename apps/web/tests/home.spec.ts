@@ -209,6 +209,7 @@ test("resource version APIs require authentication", async ({ request }) => {
 test("model, skill, run and queue settings APIs require authentication", async ({ request }) => {
   for (const path of [
     "/api/settings/model-providers",
+    "/api/settings/model-provider-presets",
     "/api/settings/skills",
     "/api/settings/query-runs",
     "/api/settings/queue-health",

@@ -4,10 +4,42 @@ import { describe, expect, it } from "vitest";
 import {
   assertProviderEndpoint,
   pinnedProviderFetch,
-  providerEndpointPolicyFromEnvironment
+  providerEndpointPolicyFromEnvironment,
+  validateProviderEndpoint
 } from "../src/index";
 
 describe("provider endpoint policy", () => {
+  it("allows built-in provider hosts by default while rejecting unknown cloud hosts", () => {
+    const policy = providerEndpointPolicyFromEnvironment({});
+    expect(validateProviderEndpoint("https://api.deepseek.com", "cloud", policy)).toMatchObject({
+      hostname: "api.deepseek.com"
+    });
+    expect(() =>
+      validateProviderEndpoint("https://models.example.test/v1", "cloud", policy)
+    ).toThrow("MODEL_PROVIDER_ENDPOINT_DENIED");
+  });
+
+  it("lets deployment explicitly narrow the built-in cloud host set", () => {
+    const policy = providerEndpointPolicyFromEnvironment({
+      WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST: "api.openai.com"
+    });
+    expect(() => validateProviderEndpoint("https://api.deepseek.com", "cloud", policy)).toThrow(
+      "MODEL_PROVIDER_ENDPOINT_DENIED"
+    );
+    expect(validateProviderEndpoint("https://api.openai.com/v1", "cloud", policy)).toMatchObject({
+      hostname: "api.openai.com"
+    });
+    expect(() =>
+      validateProviderEndpoint(
+        "https://api.openai.com/v1",
+        "cloud",
+        providerEndpointPolicyFromEnvironment({
+          WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST: ""
+        })
+      )
+    ).toThrow("MODEL_PROVIDER_ENDPOINT_DENIED");
+  });
+
   it("rejects unallowlisted local metadata endpoints before any request", async () => {
     await expect(
       assertProviderEndpoint(

@@ -4,10 +4,12 @@ import { useEffect, useState, type FormEvent } from "react";
 import { manualFreeResponseReviewItemSchema } from "@wknowledge/contracts";
 import type {
   ApiError,
+  ManagedModelProviderPreset,
   ManagedModelProvider,
   ManagedQueryRun,
   ManagedSkill,
-  ManualFreeResponseReviewItem
+  ManualFreeResponseReviewItem,
+  ModelCapability
 } from "@wknowledge/contracts";
 import { useWorkspace } from "../workspace-shell";
 import { AccessManagement } from "../access-management";
@@ -34,6 +36,26 @@ const CAPABILITY_LABELS: Record<string, string> = {
 const RUN_MODE_LABELS: Record<ManagedQueryRun["answerMode"], string> = {
   generated: "模型生成",
   extractive_fallback: "检索摘要"
+};
+
+type ProviderDraft = {
+  presetId: string;
+  name: string;
+  location: "local" | "cloud";
+  baseUrl: string;
+  model: string;
+  capabilities: ModelCapability[];
+  apiKey: string;
+};
+
+const EMPTY_PROVIDER_DRAFT: ProviderDraft = {
+  presetId: "custom",
+  name: "",
+  location: "local",
+  baseUrl: "",
+  model: "",
+  capabilities: ["chat"],
+  apiKey: ""
 };
 
 function formatRunTime(value: string) {
@@ -172,6 +194,7 @@ function SkillCard({
 export default function SettingsPage() {
   const { setNotice } = useWorkspace();
   const [providers, setProviders] = useState<ManagedModelProvider[]>([]);
+  const [providerPresets, setProviderPresets] = useState<ManagedModelProviderPreset[]>([]);
   const [skills, setSkills] = useState<ManagedSkill[]>([]);
   const [queryRuns, setQueryRuns] = useState<ManagedQueryRun[]>([]);
   const [freeResponseReviews, setFreeResponseReviews] = useState<ManualFreeResponseReviewItem[]>(
@@ -180,34 +203,48 @@ export default function SettingsPage() {
   const [busyId, setBusyId] = useState("");
   const [error, setError] = useState("");
   const [editingProvider, setEditingProvider] = useState<ManagedModelProvider | null>(null);
+  const [providerDraft, setProviderDraft] = useState<ProviderDraft>(EMPTY_PROVIDER_DRAFT);
+  const selectedPreset = providerPresets.find((preset) => preset.id === providerDraft.presetId);
 
   useEffect(() => {
     const controller = new AbortController();
     void Promise.all([
       fetch("/api/settings/model-providers", { signal: controller.signal }),
+      fetch("/api/settings/model-provider-presets", { signal: controller.signal }),
       fetch("/api/settings/skills", { signal: controller.signal }),
       fetch("/api/settings/query-runs?limit=20", { signal: controller.signal }),
       fetch("/api/learning/reviews/free-response", { signal: controller.signal })
     ])
-      .then(async ([providerResponse, skillResponse, runResponse, reviewResponse]) => {
-        if (!providerResponse.ok || !skillResponse.ok || !runResponse.ok || !reviewResponse.ok)
-          throw new Error(
-            providerResponse.status === 403 ||
-              skillResponse.status === 403 ||
-              runResponse.status === 403 ||
-              reviewResponse.status === 403
-              ? "只有组织管理员可以管理系统设置"
-              : "设置读取失败"
-          );
-        return Promise.all([
-          providerResponse.json() as Promise<{ providers: ManagedModelProvider[] }>,
-          skillResponse.json() as Promise<{ skills: ManagedSkill[] }>,
-          runResponse.json() as Promise<{ runs: ManagedQueryRun[] }>,
-          reviewResponse.json() as Promise<{ items: unknown }>
-        ]);
-      })
-      .then(([providerData, skillData, runData, reviewData]) => {
+      .then(
+        async ([providerResponse, presetResponse, skillResponse, runResponse, reviewResponse]) => {
+          if (
+            !providerResponse.ok ||
+            !presetResponse.ok ||
+            !skillResponse.ok ||
+            !runResponse.ok ||
+            !reviewResponse.ok
+          )
+            throw new Error(
+              providerResponse.status === 403 ||
+                presetResponse.status === 403 ||
+                skillResponse.status === 403 ||
+                runResponse.status === 403 ||
+                reviewResponse.status === 403
+                ? "只有组织管理员可以管理系统设置"
+                : "设置读取失败"
+            );
+          return Promise.all([
+            providerResponse.json() as Promise<{ providers: ManagedModelProvider[] }>,
+            presetResponse.json() as Promise<{ presets: ManagedModelProviderPreset[] }>,
+            skillResponse.json() as Promise<{ skills: ManagedSkill[] }>,
+            runResponse.json() as Promise<{ runs: ManagedQueryRun[] }>,
+            reviewResponse.json() as Promise<{ items: unknown }>
+          ]);
+        }
+      )
+      .then(([providerData, presetData, skillData, runData, reviewData]) => {
         setProviders(providerData.providers);
+        setProviderPresets(presetData.presets);
         setSkills(skillData.skills);
         setQueryRuns(runData.runs);
         setFreeResponseReviews(manualFreeResponseReviewItemSchema.array().parse(reviewData.items));
@@ -221,10 +258,80 @@ export default function SettingsPage() {
     return () => controller.abort();
   }, [setNotice]);
 
+  function providerPresetFor(provider: ManagedModelProvider) {
+    return providerPresets.find(
+      (preset) =>
+        preset.location === provider.location &&
+        preset.endpoints.some((endpoint) => endpoint.baseUrl === provider.baseUrl) &&
+        preset.models.some((model) => model.id === provider.model)
+    );
+  }
+
+  function editProvider(provider: ManagedModelProvider) {
+    const preset = providerPresetFor(provider);
+    setEditingProvider(provider);
+    setProviderDraft({
+      presetId: preset?.id ?? "custom",
+      name: provider.name,
+      location: provider.location,
+      baseUrl: provider.baseUrl,
+      model: provider.model,
+      capabilities: [...provider.capabilities],
+      apiKey: ""
+    });
+  }
+
+  function cancelProviderEdit() {
+    setEditingProvider(null);
+    setProviderDraft(EMPTY_PROVIDER_DRAFT);
+  }
+
+  function selectProviderPreset(presetId: string) {
+    const preset = providerPresets.find((item) => item.id === presetId);
+    if (!preset) {
+      setProviderDraft((current) => ({ ...current, presetId: "custom" }));
+      return;
+    }
+    const endpoint = preset.endpoints[0];
+    const model = preset.models[0];
+    if (!endpoint || !model) return;
+    setProviderDraft((current) => ({
+      ...current,
+      presetId: preset.id,
+      name: preset.name,
+      location: preset.location,
+      baseUrl: endpoint.baseUrl,
+      model: model.id,
+      capabilities: [...preset.capabilities]
+    }));
+  }
+
+  function updateProviderDraft<Key extends keyof ProviderDraft>(
+    key: Key,
+    value: ProviderDraft[Key]
+  ) {
+    setProviderDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function toggleProviderCapability(capability: ModelCapability) {
+    setProviderDraft((current) => {
+      const capabilities = current.capabilities.includes(capability)
+        ? current.capabilities.filter((item) => item !== capability)
+        : [...current.capabilities, capability];
+      return { ...current, capabilities };
+    });
+  }
+
   async function saveProvider(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formElement = event.currentTarget;
-    const form = new FormData(formElement);
+    if (selectedPreset && !selectedPreset.allowed) {
+      setError("该服务商地址未纳入当前部署网络策略，请让部署管理员加入对应 host 后重试");
+      return;
+    }
+    if (providerDraft.capabilities.length === 0) {
+      setError("至少选择一项服务能力");
+      return;
+    }
     setBusyId("create-provider");
     setError("");
     const response = await fetch(
@@ -235,12 +342,12 @@ export default function SettingsPage() {
         method: editingProvider ? "PATCH" : "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          name: form.get("name"),
-          capabilities: form.getAll("capabilities"),
-          location: form.get("location"),
-          baseUrl: form.get("baseUrl"),
-          model: form.get("model"),
-          apiKey: form.get("apiKey") || undefined,
+          name: providerDraft.name,
+          capabilities: providerDraft.capabilities,
+          location: providerDraft.location,
+          baseUrl: providerDraft.baseUrl,
+          model: providerDraft.model,
+          apiKey: providerDraft.apiKey || undefined,
           ...(editingProvider ? {} : { enabled: true }),
           timeoutMs: 20_000
         })
@@ -259,9 +366,25 @@ export default function SettingsPage() {
     );
     const wasEditing = Boolean(editingProvider);
     setEditingProvider(null);
-    formElement.reset();
+    setProviderDraft(EMPTY_PROVIDER_DRAFT);
+    setNotice(wasEditing ? "模型服务已更新，正在测试连接…" : "模型服务已保存，正在测试连接…");
+    const testResponse = await fetch(`/api/settings/model-providers/${data.provider.id}/test`, {
+      method: "POST"
+    });
+    if (testResponse.ok) {
+      const testData = (await testResponse.json()) as { provider: ManagedModelProvider };
+      setProviders((current) =>
+        current.map((item) => (item.id === testData.provider.id ? testData.provider : item))
+      );
+      setNotice(
+        testData.provider.health === "healthy"
+          ? "模型服务已保存并可用"
+          : "模型服务已保存，但连接测试未通过"
+      );
+    } else {
+      setNotice("模型服务已保存，但连接测试失败，请检查 API Key 或服务商状态");
+    }
     setBusyId("");
-    setNotice(wasEditing ? "模型服务配置已更新" : "模型服务已保存，建议立即测试连接");
   }
 
   async function toggleProvider(provider: ManagedModelProvider) {
@@ -357,87 +480,156 @@ export default function SettingsPage() {
             {providers.filter((item) => item.enabled && item.health === "healthy").length} 个可用
           </b>
         </div>
-        <form
-          key={editingProvider?.id ?? "new-provider"}
-          className="provider-create"
-          onSubmit={saveProvider}
-        >
+        <form className="provider-create" onSubmit={saveProvider}>
+          <label>
+            服务商
+            <select
+              value={providerDraft.presetId}
+              onChange={(event) => selectProviderPreset(event.target.value)}
+            >
+              <option value="custom">自定义 OpenAI-compatible</option>
+              {providerPresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name}
+                  {preset.allowed ? "" : " · 当前部署未允许"}
+                </option>
+              ))}
+            </select>
+          </label>
           <label>
             显示名称
             <input
               name="name"
               placeholder="本地 Ollama"
-              defaultValue={editingProvider?.name}
+              value={providerDraft.name}
+              onChange={(event) => updateProviderDraft("name", event.target.value)}
               required
               minLength={1}
             />
           </label>
           <label>
             部署位置
-            <select name="location" defaultValue={editingProvider?.location ?? "local"}>
+            <select
+              name="location"
+              value={providerDraft.location}
+              disabled={Boolean(selectedPreset)}
+              onChange={(event) =>
+                updateProviderDraft("location", event.target.value as ProviderDraft["location"])
+              }
+            >
               <option value="local">本地</option>
               <option value="cloud">云端</option>
             </select>
           </label>
           <label className="provider-url-field">
             接口地址
-            <input
-              name="baseUrl"
-              type="url"
-              placeholder="http://127.0.0.1:11434/v1"
-              defaultValue={editingProvider?.baseUrl}
-              required
-            />
+            {selectedPreset ? (
+              <select
+                name="baseUrl"
+                value={providerDraft.baseUrl}
+                onChange={(event) => updateProviderDraft("baseUrl", event.target.value)}
+                required
+              >
+                {selectedPreset.endpoints.map((endpoint) => (
+                  <option key={endpoint.id} value={endpoint.baseUrl}>
+                    {endpoint.label} · {endpoint.baseUrl}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                name="baseUrl"
+                type="url"
+                placeholder="http://127.0.0.1:11434/v1"
+                value={providerDraft.baseUrl}
+                onChange={(event) => updateProviderDraft("baseUrl", event.target.value)}
+                required
+              />
+            )}
           </label>
           <label>
             模型名称
-            <input
-              name="model"
-              placeholder="qwen3"
-              defaultValue={editingProvider?.model}
-              required
-            />
+            {selectedPreset ? (
+              <select
+                name="model"
+                value={providerDraft.model}
+                onChange={(event) => updateProviderDraft("model", event.target.value)}
+                required
+              >
+                {selectedPreset.models.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.label} · {model.id}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                name="model"
+                placeholder="qwen3"
+                value={providerDraft.model}
+                onChange={(event) => updateProviderDraft("model", event.target.value)}
+                required
+              />
+            )}
           </label>
           <fieldset className="provider-capabilities">
             <legend>服务能力</legend>
-            <label>
+            <label className={selectedPreset ? "is-fixed" : undefined}>
               <input
                 name="capabilities"
                 type="checkbox"
                 value="chat"
-                defaultChecked={editingProvider?.capabilities.includes("chat") ?? true}
+                checked={providerDraft.capabilities.includes("chat")}
+                disabled={Boolean(selectedPreset)}
+                onChange={() => toggleProviderCapability("chat")}
               />
               对话
             </label>
-            <label>
+            <label className={selectedPreset ? "is-fixed" : undefined}>
               <input
                 name="capabilities"
                 type="checkbox"
                 value="speech_to_text"
-                defaultChecked={editingProvider?.capabilities.includes("speech_to_text") ?? false}
+                checked={providerDraft.capabilities.includes("speech_to_text")}
+                disabled={Boolean(selectedPreset)}
+                onChange={() => toggleProviderCapability("speech_to_text")}
               />
               语音转文字
             </label>
-            <label>
+            <label className={selectedPreset ? "is-fixed" : undefined}>
               <input
                 name="capabilities"
                 type="checkbox"
                 value="vision"
-                defaultChecked={editingProvider?.capabilities.includes("vision") ?? false}
+                checked={providerDraft.capabilities.includes("vision")}
+                disabled={Boolean(selectedPreset)}
+                onChange={() => toggleProviderCapability("vision")}
               />
               视觉理解
             </label>
           </fieldset>
           <label>
-            API Key（可选）
+            API Key（云端必填，本地可选）
             <input
               name="apiKey"
               type="password"
               autoComplete="new-password"
+              value={providerDraft.apiKey}
+              onChange={(event) => updateProviderDraft("apiKey", event.target.value)}
               placeholder={editingProvider?.hasApiKey ? "留空则保留已保存密钥" : "仅服务端加密保存"}
+              required={providerDraft.location === "cloud" && !editingProvider?.hasApiKey}
             />
           </label>
-          <button disabled={busyId === "create-provider"}>
+          {selectedPreset && !selectedPreset.allowed ? (
+            <p className="provider-policy-hint">
+              当前部署未放行 {selectedPreset.name} 的接口地址；请联系部署管理员加入 host。
+            </p>
+          ) : null}
+          <button
+            disabled={
+              busyId === "create-provider" || Boolean(selectedPreset && !selectedPreset.allowed)
+            }
+          >
             {busyId === "create-provider"
               ? "保存中…"
               : editingProvider
@@ -445,7 +637,7 @@ export default function SettingsPage() {
                 : "添加模型服务"}
           </button>
           {editingProvider ? (
-            <button type="button" className="button-quiet" onClick={() => setEditingProvider(null)}>
+            <button type="button" className="button-quiet" onClick={cancelProviderEdit}>
               取消
             </button>
           ) : null}
@@ -459,7 +651,7 @@ export default function SettingsPage() {
                 busy={busyId === provider.id}
                 onToggle={toggleProvider}
                 onTest={testProvider}
-                onEdit={setEditingProvider}
+                onEdit={editProvider}
               />
             ))
           ) : (

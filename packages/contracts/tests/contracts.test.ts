@@ -4,6 +4,8 @@ import {
   createAgentContextBindingInputSchema,
   createAgentSessionInputSchema,
   createModelProviderInputSchema,
+  MODEL_PROVIDER_PRESETS,
+  managedModelProviderPresetSchema,
   groundedQueryResultSchema,
   normalizeLegacyCompiledDocument,
   parserManifestSchema,
@@ -23,6 +25,28 @@ import {
 } from "../src/index";
 
 describe("source contracts", () => {
+  it("keeps the built-in provider catalog public, bounded and OpenAI-compatible", () => {
+    expect(MODEL_PROVIDER_PRESETS.length).toBeGreaterThanOrEqual(5);
+    expect(MODEL_PROVIDER_PRESETS.map((preset) => preset.id)).toContain("deepseek");
+    expect(MODEL_PROVIDER_PRESETS.find((preset) => preset.id === "deepseek")).toMatchObject({
+      endpoints: [{ baseUrl: "https://api.deepseek.com" }],
+      models: expect.arrayContaining([{ id: "deepseek-v4-flash", label: "DeepSeek V4 Flash" }])
+    });
+    expect(MODEL_PROVIDER_PRESETS.find((preset) => preset.id === "moonshot")).toMatchObject({
+      endpoints: [{ baseUrl: "https://api.moonshot.ai/v1" }],
+      models: expect.arrayContaining([{ id: "kimi-k2.6", label: "Kimi K2.6" }])
+    });
+    for (const preset of MODEL_PROVIDER_PRESETS) {
+      expect(managedModelProviderPresetSchema.parse({ ...preset, allowed: true })).toMatchObject({
+        kind: "openai_compatible",
+        endpoints: expect.arrayContaining([
+          expect.objectContaining({ baseUrl: expect.any(String) })
+        ]),
+        models: expect.arrayContaining([expect.objectContaining({ id: expect.any(String) })])
+      });
+    }
+  });
+
   it("requires traceable structured practice-generate candidates without leaking answer keys into inputs", () => {
     const courseId = "11111111-1111-4111-8111-111111111111";
     const unitId = "22222222-2222-4222-8222-222222222222";

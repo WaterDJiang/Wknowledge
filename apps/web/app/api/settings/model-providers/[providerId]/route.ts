@@ -36,12 +36,10 @@ export async function PATCH(
         "MODEL_PROVIDER_API_KEY_REAUTH_REQUIRED",
         "修改模型服务地址后需要重新填写 API Key"
       );
-    if (
-      error instanceof Error &&
-      (error.message === "MODEL_PROVIDER_ENDPOINT_DENIED" ||
-        error.message === "MODEL_PROVIDER_ENDPOINT_UNRESOLVABLE")
-    )
-      return apiError(400, "MODEL_PROVIDER_ENDPOINT_DENIED", "模型服务地址不符合部署网络策略");
+    if (error instanceof Error && error.message === "MODEL_PROVIDER_ENDPOINT_DENIED")
+      return apiError(400, "MODEL_PROVIDER_ENDPOINT_DENIED", "模型服务地址未纳入当前部署网络策略");
+    if (error instanceof Error && error.message === "MODEL_PROVIDER_ENDPOINT_UNRESOLVABLE")
+      return apiError(400, "MODEL_PROVIDER_ENDPOINT_UNRESOLVABLE", "模型服务地址无法完成 DNS 解析");
     return apiError(500, "MODEL_PROVIDER_UPDATE_FAILED", "模型服务更新失败");
   }
 }

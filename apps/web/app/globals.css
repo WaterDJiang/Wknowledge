@@ -117,6 +117,48 @@ select:focus-visible {
   color: var(--ink);
   font: 11px var(--sans);
 }
+.provider-create select:disabled,
+.provider-create input:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+.provider-create fieldset {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  padding: 7px 9px 6px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+.provider-create fieldset legend {
+  padding: 0 4px;
+  color: var(--muted);
+  font: 8px var(--mono);
+  text-transform: uppercase;
+}
+.provider-capabilities {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.provider-capabilities label {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--ink);
+  font: 10px var(--sans);
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.provider-capabilities label.is-fixed {
+  opacity: 0.62;
+}
+.provider-policy-hint {
+  grid-column: 1 / -1;
+  margin: -2px 0 0;
+  color: var(--rust);
+  font-size: 11px;
+}
 .provider-create button {
   height: 38px;
   padding: 0 15px;

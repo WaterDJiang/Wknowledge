@@ -25,6 +25,8 @@ services:
       WKNOWLEDGE_WORKSPACE_ROOT: /app
       WKNOWLEDGE_PYTHON: python3
       WKNOWLEDGE_CREDENTIAL_KEY: ${WKNOWLEDGE_CREDENTIAL_KEY:-}
+      WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST: ${WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST:-api.openai.com,api.deepseek.com,dashscope.aliyuncs.com,api.moonshot.ai,open.bigmodel.cn}
+      WKNOWLEDGE_LOCAL_PROVIDER_HOST_ALLOWLIST: ${WKNOWLEDGE_LOCAL_PROVIDER_HOST_ALLOWLIST:-localhost,127.0.0.1,::1}
     command: ["pnpm", "db:migrate"]
     depends_on:
       postgres:

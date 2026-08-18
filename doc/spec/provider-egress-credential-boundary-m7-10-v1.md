@@ -15,7 +15,7 @@
 ## 3. 规则
 
 - endpoint 不允许 URL 用户信息、query 或 fragment；路径只作为兼容 OpenAI API 的基础路径。
-- `local` endpoint 只允许部署配置的本地域名列表，默认仅 loopback；`cloud` endpoint 必须 HTTPS，且只允许部署配置的云端域名列表。空云端 allowlist 安全拒绝所有云端 Provider。
+- `local` endpoint 只允许部署配置的本地域名列表，默认仅 loopback；`cloud` endpoint 必须 HTTPS，且只允许部署显式配置或内置 Provider 预设声明的云端域名列表。显式 `WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST` 会收窄内置集合；未收录的 host 仍安全拒绝。
 - Cloud 目标在每次调用前解析；任何 loopback、私网、链路本地、保留或多播地址均拒绝。local 目标只接受部署明确允许的本地名称。
 - 发送 `/models`、`/chat/completions`、`/audio/transcriptions` 时使用 `redirect: "error"`，不跟随重定向，不向重定向目标发送 Bearer 凭据或资料。
 - 新建 endpoint 并提供 API Key 仍允许，但该动作必须是管理员显式的、经 allowlist 校验的凭据绑定；URL/location 变更且未重新提交 API Key 稳定拒绝。

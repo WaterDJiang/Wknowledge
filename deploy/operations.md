@@ -16,7 +16,7 @@ docker compose --profile operations run --rm preflight
 
 ## Provider 网络出口
 
-模型 Provider 只允许部署明确声明的 endpoint host。Web 与 Worker 必须使用同一组环境配置：`WKNOWLEDGE_LOCAL_PROVIDER_HOST_ALLOWLIST` 用于本地模型服务，默认仅允许 `localhost`、`127.0.0.1` 和 `::1`；`WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST` 用于云端模型服务，缺失时拒绝配置和调用所有云端 Provider。
+模型 Provider 只允许部署明确声明或内置预设声明的 endpoint host。Web 与 Worker 必须使用同一组环境配置：`WKNOWLEDGE_LOCAL_PROVIDER_HOST_ALLOWLIST` 用于本地模型服务，默认仅允许 `localhost`、`127.0.0.1` 和 `::1`；`WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST` 用于云端模型服务，未设置时使用设置页内置的 OpenAI、DeepSeek、阿里云百炼、Moonshot/Kimi、智谱 GLM host 集合。部署可以显式设置该变量缩小范围；未收录的任意 host 仍被拒绝。
 
 cloud endpoint 必须为 HTTPS、无 URL 用户信息/query/fragment，并在每次调用前解析为公网地址；IPv4-mapped IPv6 同样按其底层 IPv4 的私网、CGNAT、链路本地和保留地址规则拒绝。重定向一律拒绝。请同时在容器网络或 egress proxy 只放行相同的 host/IP 范围，应用层 allowlist 不替代网络层出口策略。修改 Provider 地址或 local/cloud 类型时，管理员必须重新提交 API Key；系统不会复用既有凭据。
 

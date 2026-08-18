@@ -4,7 +4,11 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { isIP } from "node:net";
 import { Readable } from "node:stream";
-import type { DataPolicy, ModelCapability } from "@wknowledge/contracts";
+import {
+  BUILTIN_CLOUD_PROVIDER_HOSTS,
+  type DataPolicy,
+  type ModelCapability
+} from "@wknowledge/contracts";
 
 export interface EncryptedCredential {
   ciphertext: string;
@@ -127,11 +131,13 @@ function normalizedHost(value: string): string {
 }
 
 function hostAllowlist(value: string | undefined, defaults: string[]): ReadonlySet<string> {
-  const parsed = value
-    ?.split(",")
-    .map((item) => normalizedHost(item.trim()))
-    .filter(Boolean);
-  return new Set(parsed?.length ? parsed : defaults.map(normalizedHost));
+  if (value === undefined) return new Set(defaults.map(normalizedHost));
+  return new Set(
+    value
+      .split(",")
+      .map((item) => normalizedHost(item.trim()))
+      .filter(Boolean)
+  );
 }
 
 export function providerEndpointPolicyFromEnvironment(
@@ -143,7 +149,9 @@ export function providerEndpointPolicyFromEnvironment(
       "127.0.0.1",
       "::1"
     ]),
-    cloudHostAllowlist: hostAllowlist(environment.WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST, [])
+    cloudHostAllowlist: hostAllowlist(environment.WKNOWLEDGE_CLOUD_PROVIDER_HOST_ALLOWLIST, [
+      ...BUILTIN_CLOUD_PROVIDER_HOSTS
+    ])
   };
 }
 
